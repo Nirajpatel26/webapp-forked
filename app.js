@@ -27,7 +27,8 @@ connectToDb();
 app.all("/healthz", setHeaders ,async (req, res) => {
     try {
 
-        if (Object.keys(req.body).length > 0 || Object.keys(req.query).length > 0 || req.get("Content-Length")>0) {
+        if (Object.keys(req.body).length > 0 || Object.keys(req.query).length > 0 || req.get("Content-Length")!== undefined || req.get("Authorization") ||
+        req.get("authentication")  ) {
             
             console.log("Health check failed: Payload should be empty");
             return res.status(400).send();
