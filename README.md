@@ -1,7 +1,7 @@
 # Cloud-Native Web Application
 
-This repository contains a cloud-native web application that includes a `/healthz` endpoint for monitoring the health of the application and its connection to a PostgreSQL (or MySQL) database.
-It also contains a web application for users!
+This repository contains a cloud-native web application that includes a `/healthz` endpoint for monitoring the health of the application and its connection to a MySQL database.
+!
 
 
   ```bash
