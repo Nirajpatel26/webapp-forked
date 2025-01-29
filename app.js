@@ -27,17 +27,20 @@ connectToDb();
 app.all("/healthz", setHeaders ,async (req, res) => {
     try {
 
+        if (req.method !== 'GET') {
+            
+            console.log(`Health check failed: Method ${req.method} not allowed`);
+            return res.status(405).send();
+        }
+
+
         if (Object.keys(req.body).length > 0 || Object.keys(req.query).length > 0 || req.get("Content-Length")!== undefined || req.get("Authorization") ||
         req.get("authentication")  ) {
             
             console.log("Health check failed: Payload should be empty");
             return res.status(400).send();
         }
-        if (req.method !== 'GET') {
-            
-            console.log(`Health check failed: Method ${req.method} not allowed`);
-            return res.status(405).send();
-        }
+       
         await HealthCheck.create({
             datetime: new Date()
         });
@@ -56,6 +59,11 @@ app.all('/', setHeaders ,async (req, res) => {
     console.log("Health check unsuccessful");
     res.status(405).send();
 })
+
+app.get('*', setHeaders, (req, res) => {
+    console.log(`404 Not Found: ${req.method} ${req.path}`);
+    return res.status(404).send();
+  });
 
 // Start the server
 const port = process.env.SERVER_PORT || 3000;
