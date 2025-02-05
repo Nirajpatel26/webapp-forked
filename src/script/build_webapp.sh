@@ -28,7 +28,7 @@ sudo mysql -e "FLUSH PRIVILEGES;"
 
 echo "-------Unzipping the Application-------"
 sudo mkdir -p /opt/csye6225
-sudo unzip webapp-main.zip -d /opt/csye6225/
+sudo unzip webapp.zip -d /opt/csye6225/
 
 echo "-------Moving .env File-------"
 sudo cp .env /opt/csye6225/webapp-main/
@@ -38,7 +38,7 @@ sudo chown -R csye6225:csye6225 /opt/csye6225/
 sudo chmod -R 750 /opt/csye6225/
 
 echo "-------Installing Node.js Project Dependencies-------"
-cd /opt/csye6225/webapp-main || exit 1
+cd /opt/csye6225/webapp || exit 1
 npm install --unsafe-perm
 
 echo "-------Starting the Application-------"
