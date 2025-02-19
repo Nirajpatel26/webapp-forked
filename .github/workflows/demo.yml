@@ -20,12 +20,7 @@ jobs:
           MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}   
         ports:
           - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 --user=root --password=$DB_PASSWORD"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-        
+    
     
     steps:
       - name: Checkout Repository
@@ -47,7 +42,16 @@ jobs:
             echo "Waiting for MySQL..."
             sleep 2
           done
-     
+
+      - name: Verify Database Creation
+        run: |
+          echo "Checking if database exists..."
+          if sudo mysql -u root -p"${{ secrets.DB_PASSWORD }}" -h 127.0.0.1 -e "SHOW DATABASES LIKE '${{ secrets.DB_DATABASE }}';" | grep "${{ secrets.DB_DATABASE }}"; then
+            echo "✅ Database exists!"
+          else
+            echo "❌ Database not found!"
+            exit 1
+          fi
  
       - name: Install Dependencies
         run: npm install
