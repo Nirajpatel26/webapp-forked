@@ -11,20 +11,6 @@ jobs:
     name: pr-check
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }} 
-          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 --user=root --password=root"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -34,29 +20,27 @@ jobs:
           echo "SERVER_PORT=8800" >> $GITHUB_ENV
           echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV  
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
-          echo "DB_DATABASE=webapp" >> $GITHUB_ENV
+          echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> $GITHUB_ENV
           echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
           echo "DB_PORT=3306" >> $GITHUB_ENV
 
+      - name: Start MySQL Container Manually
+        run: |
+          docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=${{ secrets.DB_PASSWORD }} \
+          -e MYSQL_DATABASE=${{ secrets.DB_DATABASE }} -e MYSQL_USER=${{ secrets.DB_USERNAME }} \
+          -e MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }} -p 3306:3306 -d mysql:8.0
+          
       - name: Wait for MySQL to be Ready
         run: |
           echo "Waiting for MySQL to start..."
           for i in {30..0}; do
-            if mysqladmin ping -h 127.0.0.1 -uroot --password=$DB_PASSWORD --silent; then
+            if mysqladmin ping -h 127.0.0.1 -u${{ secrets.DB_USERNAME }} --password=${{ secrets.DB_PASSWORD }} --silent; then
               echo "MySQL is ready!"
               break
             fi
             echo "Waiting for MySQL..."
             sleep 2
           done
-
-      - name: Secure MySQL and Set Up User
-        run: |
-          mysql --host=127.0.0.1 --port=3306 --user=root --password=$DB_PASSWORD -e "
-          ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '$DB_PASSWORD';
-          CREATE USER '$DB_USERNAME'@'%' IDENTIFIED BY '$DB_PASSWORD';
-          GRANT ALL PRIVILEGES ON webapp.* TO '$DB_USERNAME'@'%';
-          FLUSH PRIVILEGES;"
 
       - name: Install Dependencies
         run: npm install
