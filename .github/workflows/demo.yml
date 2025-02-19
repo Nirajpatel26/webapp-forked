@@ -14,16 +14,12 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
-          MYSQL_USER: ${{ secrets.DB_USERNAME }}
-          MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}  
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}  
         ports:
-          - "3306:3306"
+          - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 --user=$DB_USERNAME --password=$DB_PASSWORD"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --user=root --password=$DB_PASSWORD"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
