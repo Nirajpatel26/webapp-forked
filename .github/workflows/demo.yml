@@ -33,21 +33,27 @@ jobs:
 
       - name: Configure MySQL Root Authentication
         run: |
+          echo "Updating MySQL root authentication..."
           sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${{ secrets.DB_PASSWORD }}';"
           sudo mysql -e "FLUSH PRIVILEGES;"
           sudo systemctl restart mysql
 
+      - name: Verify Root Access
+        run: |
+          echo "Testing MySQL root login..."
+          sudo mysql -u root -p${{ secrets.DB_PASSWORD }} -e "SELECT VERSION();"
+
       - name: Set Up Database
         run: |
-          mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS \`${{ secrets.DB_DATABASE }}\`;"
-          mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "GRANT ALL PRIVILEGES ON \`${{ secrets.DB_DATABASE }}\`.* TO 'root'@'%' IDENTIFIED BY '${{ secrets.DB_PASSWORD }}';"
-          mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "FLUSH PRIVILEGES;"
+          sudo mysql -u root -p${{ secrets.DB_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS \`${{ secrets.DB_DATABASE }}\`;"
+          sudo mysql -u root -p${{ secrets.DB_PASSWORD }} -e "GRANT ALL PRIVILEGES ON \`${{ secrets.DB_DATABASE }}\`.* TO 'root'@'%' IDENTIFIED BY '${{ secrets.DB_PASSWORD }}';"
+          sudo mysql -u root -p${{ secrets.DB_PASSWORD }} -e "FLUSH PRIVILEGES;"
 
       - name: Wait for MySQL to be Ready
         run: |
           echo "Waiting for MySQL to start..."
           for i in {30..0}; do
-            if mysqladmin ping -h 127.0.0.1 -u root --password=${{ secrets.DB_PASSWORD }} --silent; then
+            if sudo mysqladmin ping -h 127.0.0.1 -u root --password=${{ secrets.DB_PASSWORD }} --silent; then
               echo "MySQL is ready!"
               break
             fi
