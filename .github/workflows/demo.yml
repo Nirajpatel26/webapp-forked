@@ -15,12 +15,12 @@ jobs:
         image: mysql:8.0
         env:
           
-          SERVER_PORT:${{ secrets.SERVER_PORT }}
-          DB_DATABASE:${{ secrets.DB_DATABASE }}
-          DB_USERNAME:${{ secrets.DB_USERNAME }}
-          DB_PASSWORD:${{ secrets.DB_PASSWORD }}
-          DB_HOST:${{ secrets.DB_HOST }}
-          DB_PORT:${{ secrets.PORT }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.PORT }}
           
             
         ports:
