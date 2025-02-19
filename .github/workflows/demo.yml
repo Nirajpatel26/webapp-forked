@@ -21,7 +21,7 @@ jobs:
         ports:
           - 3306:3306
         
- 
+    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -30,7 +30,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
- 
+      - name: Verify Database Creation
+        run: |
+          echo "Checking if database exists..."
+          if sudo mysql -u root -p"${{ secrets.DB_PASSWORD }}" -e "SHOW DATABASES LIKE '${{ secrets.DB_DATABASE }}';" | grep "${{ secrets.DB_DATABASE }}"; then
+            echo "✅ Database '${{ secrets.DB_DATABASE }}' exists!"
+          else
+            echo "❌ Database '${{ secrets.DB_DATABASE }}' not found!"
+            exit 1
+          fi
   
  
       - name: Install Dependencies
