@@ -4,7 +4,8 @@ on:
   pull_request:
     branches:
       - main
- 
+  workflow_dispatch:
+
 jobs:
   run-tests:
     name: Run Web App Tests
@@ -14,15 +15,12 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
+          MYSQL_ROOT_USERNAME : ${{ secrets.DB_USERNAME }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}  
           MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}  
         ports:
           - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 --user=root --password=$DB_PASSWORD"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
+        
  
     steps:
       - name: Checkout Repository
@@ -33,24 +31,9 @@ jobs:
         with:
           node-version: '18'
  
-      - name: Load Environment Variables
-        run: |
-          echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
-          echo "DB_USER=root" >> $GITHUB_ENV  
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
-          echo "DB_NAME=${{ secrets.DB_DATABASE }}" >> $GITHUB_ENV
-          echo "DB_PORT=3306" >> $GITHUB_ENV
+    
  
-      - name: Wait for MySQL to be Ready
-        run: |
-          echo "Waiting for MySQL to start..."
-          sleep 30
-          until mysql --host=127.0.0.1 --port=3306 --user=root --password=$DB_PASSWORD -e
-          "SHOW DATABASES;"; do
-            echo "Waiting for MySQL..."
-            sleep 5
-          done
-          echo "MySQL is ready."
+    
  
       - name: Ensure Correct Authentication Method
         run: |
