@@ -15,7 +15,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}  
-          MYSQL_DATABASE: ${{ secrets.DB_NAME }}  
+          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}  
         ports:
           - 3306:3306
         options: >-
@@ -33,18 +33,18 @@ jobs:
 
       - name: Load Environment Variables
         run: |
-          echo "SERVER_PORT:${{ secrets.SERVER_PORT }}" >> $GITHUB_ENV
+          echo "SERVER_PORT:8800" >> $GITHUB_ENV
           echo "DB_USERNAME:${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV  
           echo "DB_PASSWORD:${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
           echo "DB_DATABASE:${{ secrets.DB_DATABASE }}" >> $GITHUB_ENV
           echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
-          echo "DB_PORT=8080" >> $GITHUB_ENV
+          echo "DB_PORT=3306" >> $GITHUB_ENV
  
       - name: Wait for MySQL to be Ready
         run: |
           echo "Waiting for MySQL to start..."
           sleep 30
-          until mysql --host=127.0.0.1 --port=8080 --user=$DB_USERNAME --password=$DB_PASSWORD -e
+          until mysql --host=127.0.0.1 --port=3306 --user=$DB_USERNAME --password=$DB_PASSWORD -e
           "SHOW DATABASES;"; do
             echo "Waiting for MySQL..."
             sleep 5
@@ -53,7 +53,7 @@ jobs:
 
       - name: Ensure Correct Authentication Method
         run: |
-          mysql --host=127.0.0.1 --port=8080 --user=$DB_USERNAME --password=$DB_PASSWORD -e
+          mysql --host=127.0.0.1 --port=3306 --user=$DB_USERNAME --password=$DB_PASSWORD -e
           "ALTER USER '$DB_USERNAME'@'%' IDENTIFIED WITH mysql_native_password BY '$DB_PASSWORD';
           FLUSH PRIVILEGES;" 
 
