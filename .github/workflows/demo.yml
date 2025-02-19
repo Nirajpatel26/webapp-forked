@@ -17,9 +17,14 @@ jobs:
         env:
           MYSQL_ROOT_USERNAME : ${{ secrets.DB_USERNAME }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}  
-          MYSQL_DATABASE: webapp  
+          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}   
         ports:
           - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --user=root --password=$DB_PASSWORD"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
         
     
     steps:
