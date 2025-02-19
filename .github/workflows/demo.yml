@@ -24,7 +24,7 @@ jobs:
           
             
         ports:
-          - "$DB_PORT:3306"
+          - "3306:3306"
         options: >-
           --health-cmd="mysqladmin ping -h $DB_HOST --user=$DB_USERNAME --password=$DB_PASSWORD"
           --health-interval=10s
