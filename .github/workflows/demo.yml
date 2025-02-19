@@ -28,8 +28,8 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y mysql-server
-          sudo systemctl start mysql
-          sudo systemctl enable mysql
+          sudo service start mysql
+          sudo service enable mysql
 
       - name: Set Up Database
         run: |
