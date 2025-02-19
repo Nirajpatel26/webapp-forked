@@ -30,16 +30,19 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - name: Verify Database Creation
+
+      - name: Wait for MySQL to be Ready
         run: |
-          echo "Checking if database exists..."
-          if sudo mysql -u root -p"${{ secrets.DB_PASSWORD }}" -e "SHOW DATABASES LIKE webapp;" | grep "${{ secrets.DB_DATABASE }}"; then
-            echo "✅ Database  exists!"
-          else
-            echo "❌ Database not found!"
-            exit 1
-          fi
-  
+          echo "Waiting for MySQL to start..."
+          for i in {30..0}; do
+            if mysqladmin ping -h 127.0.0.1 --silent; then
+              echo "MySQL is ready!"
+              break
+            fi
+            echo "Waiting for MySQL..."
+            sleep 2
+          don
+     
  
       - name: Install Dependencies
         run: npm install
