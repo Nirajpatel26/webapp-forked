@@ -18,7 +18,7 @@ jobs:
       - name: Set Environment Variables
         run: |
           echo "SERVER_PORT=8800" >> $GITHUB_ENV
-          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV  
+          echo "DB_USERNAME=root" >> $GITHUB_ENV  
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
           echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> $GITHUB_ENV
           echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
@@ -31,11 +31,17 @@ jobs:
           sudo systemctl start mysql
           sudo systemctl enable mysql
 
+      - name: Configure MySQL Root Authentication
+        run: |
+          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${{ secrets.DB_PASSWORD }}';"
+          sudo mysql -e "FLUSH PRIVILEGES;"
+          sudo systemctl restart mysql
+
       - name: Set Up Database
         run: |
-          sudo mysql-container mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS \`${{ secrets.DB_DATABASE }}\`;"
-          sudo mysql-container mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "GRANT ALL PRIVILEGES ON \`${{ secrets.DB_DATABASE }}\`.* TO 'root'@'%';"
-          sudo mysql-container mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "FLUSH PRIVILEGES;"
+          mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS \`${{ secrets.DB_DATABASE }}\`;"
+          mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "GRANT ALL PRIVILEGES ON \`${{ secrets.DB_DATABASE }}\`.* TO 'root'@'%' IDENTIFIED BY '${{ secrets.DB_PASSWORD }}';"
+          mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "FLUSH PRIVILEGES;"
 
       - name: Wait for MySQL to be Ready
         run: |
