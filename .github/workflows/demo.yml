@@ -38,3 +38,10 @@ jobs:
  
       - name: Run Tests
         run: npm test
+        env:
+          SERVER_PORT: 8800
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_HOST: 127.0.0.1
+          
