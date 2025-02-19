@@ -15,12 +15,13 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_USERNAME : ${{ secrets.DB_USERNAME }}
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}  
-          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}   
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
+          MYSQL_USER: ${{ secrets.DB_USERNAME }}
+          MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
         ports:
           - 3306:3306
-    
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     
     steps:
       - name: Checkout Repository
@@ -31,30 +32,16 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Wait for MySQL to be Ready
-        run: |
-          echo "Waiting for MySQL to start..."
-          for i in {30..0}; do
-            if mysqladmin ping -h 127.0.0.1 --silent; then
-              echo "MySQL is ready!"
-              break
-            fi
-            echo "Waiting for MySQL..."
-            sleep 2
-          done
-
-      - name: Verify Database Creation
+      - name: Verify Database
         run: |
           echo "Checking if database exists..."
-          if sudo mysql -u root -p"${{ secrets.DB_PASSWORD }}" -h 127.0.0.1 -e "SHOW DATABASES LIKE '${{ secrets.DB_DATABASE }}';" | grep "${{ secrets.DB_DATABASE }}"; then
-            echo "✅ Database exists!"
-          else
-            echo "❌ Database not found!"
-            exit 1
-          fi
+          mysql -h127.0.0.1 -u${{ secrets.DB_USERNAME }} -p${{ secrets.DB_PASSWORD }} -e "
+          SHOW DATABASES LIKE '${{ secrets.DB_DATABASE }}';
+          "
  
       - name: Install Dependencies
         run: npm install
+
       - name: Run Tests
         run: npm test
         env:
@@ -62,6 +49,5 @@ jobs:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_DATABASE: ${{ secrets.DB_DATABASE }}
-          DB_HOST: "localhost"
+          DB_HOST: "127.0.0.1"
           PORT: "3306"
-          
