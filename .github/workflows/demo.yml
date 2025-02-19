@@ -15,14 +15,12 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
-          MYSQL_USER: ${{ secrets.DB_USERNAME }}
-          MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: root 
+          MYSQL_DATABASE: webapp
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 --user=root --password=${{ secrets.DB_PASSWORD }}"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --user=root --password=root"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
@@ -44,7 +42,7 @@ jobs:
         run: |
           echo "Waiting for MySQL to start..."
           for i in {30..0}; do
-            if mysqladmin ping -h 127.0.0.1 -uroot --password=${{ secrets.DB_PASSWORD }} --silent; then
+            if mysqladmin ping -h 127.0.0.1 -uroot --password=root --silent; then
               echo "MySQL is ready!"
               break
             fi
@@ -52,10 +50,12 @@ jobs:
             sleep 2
           done
 
-      - name: Ensure Correct Authentication Method
+      - name: Secure MySQL and Set Up User
         run: |
-          mysql --host=127.0.0.1 --port=3306 --user=root --password=${{ secrets.DB_PASSWORD }} -e "
+          mysql --host=127.0.0.1 --port=3306 --user=root --password=root -e "
           ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '${{ secrets.DB_PASSWORD }}';
+          CREATE USER '${{ secrets.DB_USERNAME }}'@'%' IDENTIFIED BY '${{ secrets.DB_PASSWORD }}';
+          GRANT ALL PRIVILEGES ON *.* TO '${{ secrets.DB_USERNAME }}'@'%';
           FLUSH PRIVILEGES;"
 
       - name: Install Dependencies
