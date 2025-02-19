@@ -18,16 +18,24 @@ jobs:
       - name: Set Environment Variables
         run: |
           echo "SERVER_PORT=8800" >> $GITHUB_ENV
-          echo "DB_USERNAME=root" >> $GITHUB_ENV  
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV  
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
           echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> $GITHUB_ENV
           echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
           echo "DB_PORT=3306" >> $GITHUB_ENV
 
-      - name: Start MySQL Container
+      - name: Install MySQL
         run: |
-          docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=${{ secrets.DB_PASSWORD }} \
-          -p 3306:3306 -d mysql:8.0
+          sudo apt update
+          sudo apt install -y mysql-server
+          sudo systemctl start mysql
+          sudo systemctl enable mysql
+
+      - name: Set Up Database
+        run: |
+          sudo mysql-container mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS \`${{ secrets.DB_DATABASE }}\`;"
+          sudo mysql-container mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "GRANT ALL PRIVILEGES ON \`${{ secrets.DB_DATABASE }}\`.* TO 'root'@'%';"
+          sudo mysql-container mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "FLUSH PRIVILEGES;"
 
       - name: Wait for MySQL to be Ready
         run: |
@@ -40,12 +48,6 @@ jobs:
             echo "Waiting for MySQL..."
             sleep 2
           done
-
-      - name: Set Up Database with Root User
-        run: |
-          docker exec -i mysql-container mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS \`${{ secrets.DB_DATABASE }}\`;"
-          docker exec -i mysql-container mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "GRANT ALL PRIVILEGES ON \`${{ secrets.DB_DATABASE }}\`.* TO 'root'@'%';"
-          docker exec -i mysql-container mysql -u root --password=${{ secrets.DB_PASSWORD }} -e "FLUSH PRIVILEGES;"
 
       - name: Install Dependencies
         run: npm install
