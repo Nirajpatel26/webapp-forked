@@ -31,7 +31,7 @@ sudo mkdir -p /opt/csye6225
 sudo unzip webapp.zip -d /opt/csye6225/
 
 echo "-------Moving .env File-------"
-sudo cp .env /opt/csye6225/webapp-main/
+sudo cp .env /opt/csye6225/webapp/
 
 echo "-------Updating Permissions-------"
 sudo chown -R csye6225:csye6225 /opt/csye6225/

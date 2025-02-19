@@ -1,0 +1,68 @@
+name: webapp test 
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+ 
+jobs:
+  build-and-test:
+    name : pr-check
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          env:
+            SERVER_PORT:${{ secrets.SERVER_PORT }}
+            DB_DATABASE:${{ secrets.DB_DATABASE }}
+            DB_USERNAME:${{ secrets.DB_USERNAME }}
+            DB_PASSWORD:${{ secrets.DB_PASSWORD }}
+            DB_HOST:${{ secrets.DB_HOST }}
+            
+        ports:
+          - PORT:${{ secrets.PORT }} 
+        options: >-
+          --health-cmd="mysqladmin ping -h $SERVER_PORT --user=$DB_USERNAME --password=$DB_PASSWORD"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Load Environment Variables
+        run: |
+          echo "SERVER_PORT:${{ secrets.SERVER_PORT }}" >> $GITHUB_ENV
+          echo "DB_USERNAME:${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV  
+          echo "DB_PASSWORD:${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+          echo "DB_DATABASE:${{ secrets.DB_DATABASE }}" >> $GITHUB_ENV
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
+ 
+      - name: Wait for MySQL to be Ready
+        run: |
+          echo "Waiting for MySQL to start..."
+          sleep 30
+          until mysql --host=$SERVER_PORT --port=$DB_HOST --user=$DB_USERNAME --password=$DB_PASSWORD -e
+          "SHOW DATABASES;"; do
+            echo "Waiting for MySQL..."
+            sleep 5
+          done
+          echo "MySQL is ready."
+
+      - name: Ensure Correct Authentication Method
+        run: |
+          mysql --host=$SERVER_PORT --port=$DB_HOST --user=$DB_USERNAME --password=$DB_PASSWORD -e
+          "ALTER USER '$DB_USERNAME'@'%' IDENTIFIED WITH mysql_native_password BY '$DB_PASSWORD';
+          FLUSH PRIVILEGES;" 
+
+      - name: Install Dependencies
+        run: npm install
+ 
+      - name: Run Tests
+        run: npm test
