@@ -41,18 +41,17 @@ jobs:
       - name: Wait for MySQL to be Ready
         run: |
           echo "Waiting for MySQL to start..."
-          for i in {30..0}; do
-            if mysqladmin ping -h 127.0.0.1 -uroot --password=root --silent; then
-              echo "MySQL is ready!"
-              break
-            fi
+          sleep 30
+          until mysql --host=127.0.0.1 --port=3306 --user=root --password=$DB_PASSWORD -e
+          "SHOW DATABASES;"; do
             echo "Waiting for MySQL..."
-            sleep 2
+            sleep 5
           done
+          echo "MySQL is ready."
 
       - name: Secure MySQL and Set Up User
         run: |
-          mysql --host=127.0.0.1 --port=3306 --user=root --password=root -e "
+          mysql --host=127.0.0.1 --port=3306 --user=root --password=DB_PASSWORD -e "
           ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '${{ secrets.DB_PASSWORD }}';
           CREATE USER '${{ secrets.DB_USERNAME }}'@'%' IDENTIFIED BY '${{ secrets.DB_PASSWORD }}';
           GRANT ALL PRIVILEGES ON *.* TO '${{ secrets.DB_USERNAME }}'@'%';
