@@ -33,10 +33,10 @@ jobs:
       - name: Verify Database Creation
         run: |
           echo "Checking if database exists..."
-          if sudo mysql -u root -p"${{ secrets.DB_PASSWORD }}" -e "SHOW DATABASES LIKE '${{ secrets.DB_DATABASE }}';" | grep "${{ secrets.DB_DATABASE }}"; then
-            echo "✅ Database '${{ secrets.DB_DATABASE }}' exists!"
+          if sudo mysql -u root -p"${{ secrets.DB_PASSWORD }}" -e "SHOW DATABASES LIKE webapp;" | grep "${{ secrets.DB_DATABASE }}"; then
+            echo "✅ Database  exists!"
           else
-            echo "❌ Database '${{ secrets.DB_DATABASE }}' not found!"
+            echo "❌ Database not found!"
             exit 1
           fi
   
