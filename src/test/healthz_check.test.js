@@ -1,5 +1,6 @@
 const request = require('supertest');
-const {app} = require('../../app');
+
+const {app,server} = require('../../app');
 const {sequelize} =require('../db/sequelize') 
 
 
@@ -7,18 +8,19 @@ const {sequelize} =require('../db/sequelize')
 describe('Health Check Route', () => {
 
     beforeAll(async () => {
-        // Wait for Sequelize to initialize before tests start
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for DB to initialize
+
+       
         if (!sequelize) {
             throw new Error("Sequelize instance is undefined!");
         }
+    
+        await sequelize.sync({ force: true });
     });
- 
     afterAll(async () => {
-        //  Close DB connection after all tests
-        if (sequelize) {
-            await sequelize.close();
-        }
+        // Close server first, then database
+        await new Promise(resolve => server.close(resolve));
+        await sequelize.close();
+
     });
 
     it('should return 405 Method Not Allowed for HEAD requests', async() => {
