@@ -71,27 +71,27 @@ variable "volume_size" {
 }
 
 variable "db_username" {
-  type    = string
+  type      = string
   sensitive = true
-  default = "user"
+  default   = "user"
 }
 
 variable "db_password" {
-  type    = string
+  type      = string
   sensitive = true
-  default = "password"
+  default   = "password"
 }
 
 variable "db_database" {
-  type    = string
+  type      = string
   sensitive = true
-  default= "database"
+  default   = "database"
 }
 
 
 source "amazon-ebs" "my-ami" {
   region            = var.aws_region
-  ami_name          ="csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
+  ami_name          = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
   ami_description   = "AMI for A04"
   ami_regions       = ["us-east-1"]
   ami_users         = [var.demo_user]
@@ -127,10 +127,10 @@ build {
 
   provisioner "shell" {
     script = "scripts/sh2.sh"
-     environment_vars = [
-        "DB_USERNAME=${var.db_username}",
-        "DB_PASSWORD=${var.db_password}",
-        "DB_DATABASE=${var.db_database}"
+    environment_vars = [
+      "DB_USERNAME=${var.db_username}",
+      "DB_PASSWORD=${var.db_password}",
+      "DB_DATABASE=${var.db_database}"
     ]
   }
 }
