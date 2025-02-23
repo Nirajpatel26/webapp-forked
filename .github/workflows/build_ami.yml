@@ -39,7 +39,7 @@ jobs:
         run: |
           ls
           pwd
-          sudo mv /home/runner/work/webapp/webapp/webapp.zip /home/runner/work/webapp/webapp/packer/
+          sudo mv /home/runner/work/webapp-forked/webapp-forked/webapp-forked.zip /home/runner/work/webapp-forked/webapp-forked/packer/
 
 
 
