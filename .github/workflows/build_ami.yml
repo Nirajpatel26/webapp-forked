@@ -51,6 +51,8 @@ jobs:
           sudo apt-get update && sudo apt-get install packer -y
           
           # Navigate to packer directory and run build
+          ls
+          pwd
           cd packer
           packer init webapp.pkr.hcl
 
