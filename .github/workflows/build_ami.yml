@@ -20,7 +20,9 @@ jobs:
 
       - name: Create Zip File
         run: |
-          zip -r webapp.zip .
+              zip -r webapp.zip .
+              cp webapp.zip packer/
+              ls -la packer/
         
       - name: List Files
         run: ls -al
