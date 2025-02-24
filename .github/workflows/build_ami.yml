@@ -11,10 +11,7 @@ jobs:
     name: packer-build
     runs-on: ubuntu-latest
 
-    env:
-          MYSQL_USERNAME : ${{ secrets.DB_USERNAME }}
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}  
-          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
+  
         
     steps:
       - name: Checkout code
@@ -62,7 +59,7 @@ jobs:
             -var "dev_user=${{ secrets.DEV_USER }}" \
             -var "demo_user=${{ secrets.DEMO_USER }}" \
             -var "security_group_id=${{ secrets.SECURITY_GROUP_ID }}" \
-            -var "db_username=${{ secrets.DB_USERNAME }}" \
+            -var "db_username=${{ secrets.DB_EC2_USER }}" \
             -var "db_password=${{ secrets.DB_PASSWORD }}" \
             -var "db_database=${{ secrets.DB_DATABASE }}" \
             -var "server_port=${{ secrets.SERVER_PORT }}" \

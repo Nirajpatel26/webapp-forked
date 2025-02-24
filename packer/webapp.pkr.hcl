@@ -60,7 +60,7 @@ variable "volume_size" {
   default = 25
 }
 
-variable "db_username" {
+variable "DB_EC2_USER" {
   type      = string
   sensitive = true
   default   = "user"
@@ -80,7 +80,7 @@ variable "db_database" {
 
 
 variable "server_port" {
-  type      = string 
+  type      = string
   sensitive = true
   default   = "3000"
 }
@@ -134,7 +134,7 @@ build {
   provisioner "shell" {
     script = "scripts/sh2.sh"
     environment_vars = [
-      "DB_USERNAME=${var.db_username}",
+      "DB_USERNAME=${var.DB_EC2_USER}",
       "DB_PASSWORD=${var.db_password}",
       "DB_DATABASE=${var.db_database}"
     ]
@@ -146,7 +146,7 @@ build {
 
   provisioner "shell" {
     environment_vars = [
-      "DB_USERNAME=${var.db_username}",
+      "DB_USERNAME=${var.DB_EC2_USER}",
       "DB_PASSWORD=${var.db_password}",
       "DB_DATABASE=${var.db_database}",
       "SERVER_PORT=${var.server_port}",
