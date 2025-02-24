@@ -1,19 +1,13 @@
 [Unit]
-Description=CSYE 6225 App
-ConditionPathExists=/opt/application.properties
+Description=WebApp Application
 After=network.target
 
 [Service]
-Type=simple
 User=csye6225
-Group=csye6225
 WorkingDirectory=/opt/csye6225
-ExecStart=/usr/bin/node /opt/csye6225/app.js 
+ExecStart=/usr/bin/npm run start
 Restart=always
-RestartSec=3
-StandardOutput=syslog
-StandardError=syslog
-SyslogIdentifier=csye6225
 
 [Install]
 WantedBy=multi-user.target
+WantedBy=cloud-init.target
