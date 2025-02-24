@@ -15,3 +15,15 @@ sudo npm install dotenv
 # sudo Node app.js
 echo "-------COMPLETE-------"
 # node app.js
+
+# Create .env file with secrets
+echo "-------Creating .env file-------"
+cat << EOF > .env
+SERVER_PORT=${SERVER_PORT}
+DB_HOST=${DB_HOST}
+DB_USERNAME=${DB_USERNAME}
+DB_PASSWORD=${DB_PASSWORD}
+DB_DATABASE=${DB_DATABASE}
+PORT=${PORT}
+EOF
+

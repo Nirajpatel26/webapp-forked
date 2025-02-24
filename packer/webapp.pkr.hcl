@@ -79,6 +79,24 @@ variable "db_database" {
 }
 
 
+variable "SERVER_PORT" {
+  type      = string
+  sensitive = true
+  default   = "SERVER_PORT"
+}
+
+variable "DB_HOST" {
+  type      = string
+  sensitive = true
+  default   = "DB_HOST"
+}
+
+variable "PORT" {
+  type      = string
+  sensitive = true
+  default   = "PORT"
+}
+
 source "amazon-ebs" "my-ami" {
   region            = var.aws_region
   ami_name          = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
@@ -132,6 +150,14 @@ build {
   }
 
   provisioner "shell" {
+    environment_vars = [
+      "DB_USERNAME=${var.db_username}",
+      "DB_PASSWORD=${var.db_password}",
+      "DB_DATABASE=${var.db_database}",
+      "PORT=${var.port}",
+      "SERVER_PORT=${var.SERVER_PORT}",
+      "DB_HOST=${var.DB_HOST}"
+    ]
     script = "scripts/sh4.sh"
   }
 }
