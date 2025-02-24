@@ -79,13 +79,13 @@ variable "db_database" {
 }
 
 
-variable "SERVER_PORT" {
-  type      = string
+variable "server_port" {
+  type      = number
   sensitive = true
-  default   = "SERVER_PORT"
+  default   = "3000"
 }
 
-variable "DB_HOST" {
+variable "db_host" {
   type      = string
   sensitive = true
   default   = "DB_HOST"
@@ -149,8 +149,8 @@ build {
       "DB_USERNAME=${var.db_username}",
       "DB_PASSWORD=${var.db_password}",
       "DB_DATABASE=${var.db_database}",
-      "SERVER_PORT=${var.SERVER_PORT}",
-      "DB_HOST=${var.DB_HOST}"
+      "SERVER_PORT=${var.server_port}",
+      "DB_HOST=${var.db_host}"
     ]
     script = "scripts/sh4.sh"
   }
