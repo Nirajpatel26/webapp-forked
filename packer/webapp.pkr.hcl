@@ -23,16 +23,6 @@ variable "security_group_id" {
   default = "sg-0fa5cd4a07163d116"
 }
 
-variable "aws_access_key" {
-  type    = string
-  default = "AWS access key"
-}
-
-variable "aws_secret_access_key" {
-  type    = string
-  default = "AWS secret key"
-}
-
 variable "demo_user" {
   description = "demo user ID"
   type        = string
@@ -103,8 +93,6 @@ source "amazon-ebs" "my-ami" {
   ssh_interface = "public_ip" # Ensures SSH via public IP
   ssh_username  = var.ssh_username
 
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_access_key
 
 
   # EBS volume settings
@@ -120,6 +108,11 @@ build {
   sources = [
     "source.amazon-ebs.my-ami",
   ]
+
+  provisioner "file" {
+      source      = "./webapp.zip"
+      destination = "/tmp/webapp.zip"
+    }
 
   provisioner "shell" {
     script = "scripts/sh1.sh"
