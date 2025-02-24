@@ -110,8 +110,8 @@ build {
   ]
 
   provisioner "file" {
-      source      = "./webapp.zip"
-      destination = "/tmp/webapp.zip"
+    source      = "../webapp.zip"
+    destination = "/tmp/webapp.zip"
   }
 
   provisioner "shell" {

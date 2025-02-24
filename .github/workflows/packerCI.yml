@@ -42,4 +42,4 @@ jobs:
     #   working-directory: packer
       run: |
         cd packer_folder
-        packer validate -syntax-only packertemp.pkr.hcl
+        packer validate -syntax-only webapp.pkr.hcl
