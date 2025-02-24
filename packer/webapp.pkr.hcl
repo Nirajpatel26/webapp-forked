@@ -133,4 +133,12 @@ build {
       "DB_DATABASE=${var.db_database}"
     ]
   }
+
+  provisioner "shell" {
+    script = "scripts/sh3.sh"
+  }
+
+  provisioner "shell" {
+    script = "scripts/sh4.sh"
+  }
 }
