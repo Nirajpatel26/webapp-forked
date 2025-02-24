@@ -52,6 +52,7 @@ jobs:
           
           # Navigate to packer directory and run build
           cd packer
+          unzip webapp.zip
           packer init webapp.pkr.hcl
 
           packer validate webapp.pkr.hcl 
