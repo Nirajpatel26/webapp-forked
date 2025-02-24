@@ -91,11 +91,6 @@ variable "DB_HOST" {
   default   = "DB_HOST"
 }
 
-variable "PORT" {
-  type      = string
-  sensitive = true
-  default   = "PORT"
-}
 
 source "amazon-ebs" "my-ami" {
   region            = var.aws_region
@@ -154,10 +149,13 @@ build {
       "DB_USERNAME=${var.db_username}",
       "DB_PASSWORD=${var.db_password}",
       "DB_DATABASE=${var.db_database}",
-      "PORT=${var.port}",
       "SERVER_PORT=${var.SERVER_PORT}",
       "DB_HOST=${var.DB_HOST}"
     ]
     script = "scripts/sh4.sh"
+  }
+
+  provisioner "shell" {
+    script = "scripts/sh5.sh"
   }
 }

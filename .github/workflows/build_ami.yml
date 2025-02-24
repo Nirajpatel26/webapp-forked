@@ -65,4 +65,6 @@ jobs:
             -var "db_username=${{ secrets.DB_USERNAME }}" \
             -var "db_password=${{ secrets.DB_PASSWORD }}" \
             -var "db_database=${{ secrets.DB_DATABASE }}" \
+            -var "db_host=${{ secrets.DB_HOST }}" \
+            -var "db_port=${{ secrets.DB_PORT }}" \
             webapp.pkr.hcl
