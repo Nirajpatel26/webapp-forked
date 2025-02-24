@@ -82,7 +82,7 @@ variable "db_database" {
 variable "server_port" {
   type      = number
   sensitive = true
-  default   = "3000"
+  default   = 3000
 }
 
 variable "db_host" {
