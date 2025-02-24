@@ -88,7 +88,7 @@ variable "server_port" {
 variable "db_host" {
   type      = string
   sensitive = true
-  default   = "DB_HOST"
+  default   = "localhost"
 }
 
 
