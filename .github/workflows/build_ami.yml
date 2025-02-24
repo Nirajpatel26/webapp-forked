@@ -52,7 +52,6 @@ jobs:
           
           # Navigate to packer directory and run build
           ls
-          pwd
           cd packer
           packer init webapp.pkr.hcl
 
