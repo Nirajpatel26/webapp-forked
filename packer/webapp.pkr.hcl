@@ -111,10 +111,13 @@ variable "gcp_project_id" {
   default = "dev-cyse6225-451904"
 }
 
-variable "gcp_credentials" {
-  type    = string
-  default = "./gcp-cyse6225.json"
+
+
+locals {
+  ami_description = "Image for webapp"
+  timestamp       = regex_replace(timestamp(), "[- TZ:]", "")
 }
+ 
 
 source "amazon-ebs" "my-ami" {
   region            = var.aws_region
@@ -125,7 +128,7 @@ source "amazon-ebs" "my-ami" {
   subnet_id         = var.subnet_id
   security_group_id = var.security_group_id
 
-  instance_type = "t2.micro"
+  instance_type = var.instance_type
   source_ami    = var.source_ami
   ssh_interface = "public_ip" # Ensures SSH via public IP
   ssh_username  = var.ssh_username
@@ -146,13 +149,12 @@ source "googlecompute" "gcp_image" {
   image_name          = "webami-gcp-${local.timestamp}"
   machine_type        = "e2-medium"
   zone                = var.gcp_zone
-  credentials_file    = var.gcp_credentials
   ssh_username        = "ubuntu"
 }
 
 build {
   sources = [
-    "source.amazon-ebs.my-ami",
+    "source.amazon-ebs.my-ami", "source.googlecompute.gcp_image"
   ]
 
   provisioner "file" {
