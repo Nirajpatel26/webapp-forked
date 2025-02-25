@@ -2,7 +2,7 @@
 
 
 echo "-------Installing Required Packages-------"
-sudo apt-get install -y mysql-server unzip nodejs npm
+sudo apt-get install -y mysql-server unzip
 
 echo "-------Starting MySQL Service and Creating Database-------"
 sudo systemctl start mysql

@@ -11,7 +11,9 @@ sudo useradd -s /sbin/nologin -M -g csye6225 csye6225 || echo "User csye6225 alr
 
 
 echo "-------Installing Required Packages-------"
-sudo apt-get install -y mysql-server unzip nodejs npm
+sudo apt-get install -y mysql-server
+
+sudo apt-get install -y unzip
 
 echo "-------Starting MySQL Service and Creating Database-------"
 sudo systemctl start mysql
