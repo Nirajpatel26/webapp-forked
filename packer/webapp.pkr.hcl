@@ -116,6 +116,12 @@ variable "gcp_credentials" {
   default = "./gcp-cyse6225.json"
 }
 
+locals {
+  ami_description = "Image for webapp"
+  timestamp       = regex_replace(timestamp(), "[- TZ:]", "")
+}
+ 
+
 source "amazon-ebs" "my-ami" {
   region            = var.aws_region
   ami_name          = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
@@ -152,7 +158,7 @@ source "googlecompute" "gcp_image" {
 
 build {
   sources = [
-    "source.amazon-ebs.my-ami","source.googlecompute.gcp_image"
+    "source.amazon-ebs.my-ami", "source.googlecompute.gcp_image"
   ]
 
   provisioner "file" {
