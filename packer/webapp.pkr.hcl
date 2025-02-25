@@ -113,7 +113,7 @@ variable "gcp_project_id" {
 
 variable "gcp_credentials" {
   type    = string
-  default = "./gcp-cyse6225.json"
+  default = "../gcp-cyse6225.json"
 }
 
 locals {
