@@ -106,6 +106,15 @@ variable "ami_name_gcp" {
   default = "webami"
 }
 
+variable "gcp_project_id" {
+  type    = string
+  default = "dev-cyse6225-451904"
+}
+
+variable "gcp_credentials" {
+  type    = string
+  default = "./gcp-cyse6225.json"
+}
 
 source "amazon-ebs" "my-ami" {
   region            = var.aws_region
