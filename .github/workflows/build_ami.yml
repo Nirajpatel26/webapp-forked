@@ -39,17 +39,28 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      # (Optional) If you later add GCP:
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
+      - name: Install Google Cloud CLI (Official Script)
+        run: |
+          curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+          sudo apt-get update && sudo apt-get install -y google-cloud-cli
+          gcloud --version
+ 
+ 
+     
+      - name: Install GCP CLI
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y google-cloud-sdk
+            gcloud auth configure-docker
+ 
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-      
+          create_credentials_file: true
+          export_environment_variables: true
+          cleanup_credentials: true
 
 
       - name: Run Packer
