@@ -111,10 +111,7 @@ variable "gcp_project_id" {
   default = "dev-cyse6225-451904"
 }
 
-variable "gcp_credentials" {
-  type    = string
-  default = "../gcp-cyse6225.json"
-}
+
 
 locals {
   ami_description = "Image for webapp"
@@ -152,7 +149,6 @@ source "googlecompute" "gcp_image" {
   image_name          = "webami-gcp-${local.timestamp}"
   machine_type        = "e2-medium"
   zone                = var.gcp_zone
-  credentials_file    = var.gcp_credentials
   ssh_username        = "ubuntu"
 }
 

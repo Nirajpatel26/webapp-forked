@@ -48,19 +48,16 @@ jobs:
  
  
      
-      - name: Install GCP CLI
-        run: |
-            sudo apt-get update
-            sudo apt-get install -y google-cloud-sdk
-            gcloud auth configure-docker
- 
-      - name: Authenticate with Google Cloud
-        uses: google-github-actions/auth@v2
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-          create_credentials_file: true
-          export_environment_variables: true
-          cleanup_credentials: true
+    # This sets GOOGLE_APPLICATION_CREDENTIALS env var automatically
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
 
       - name: Run Packer
