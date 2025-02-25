@@ -117,13 +117,13 @@ locals {
   ami_description = "Image for webapp"
   timestamp       = regex_replace(timestamp(), "[- TZ:]", "")
 }
- 
+
 
 source "amazon-ebs" "my-ami" {
   region            = var.aws_region
   ami_name          = "csye6225_${formatdate("YYYY_MM_DD_hh_mm_ss", timestamp())}"
   ami_description   = "AMI for A04"
-  ami_regions       = ["us-east-1"]
+  ami_regions       = [var.aws_region]
   ami_users         = [var.demo_user]
   subnet_id         = var.subnet_id
   security_group_id = var.security_group_id
