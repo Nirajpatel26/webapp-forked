@@ -39,7 +39,13 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
- 
+      # (Optional) If you later add GCP:
+      - name: Configure GCP
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+      
 
 
       - name: Run Packer
@@ -65,5 +71,7 @@ jobs:
             -var "db_password=${{ secrets.DB_PASSWORD }}" \
             -var "db_database=${{ secrets.DB_DATABASE }}" \
             -var "server_port=${{ secrets.SERVER_PORT }}" \
-            -var "db_host=${{ secrets.DB_host }}" \
+            -var "db_host=${{ secrets.DB_HOST }}" \
+            -var "gcp_zone=${{secrets.GCP_ZONE}}" \
+            -var "ami_name_gcp==${{secrets.AMI_NAME_GCP}}" \
             webapp.pkr.hcl
