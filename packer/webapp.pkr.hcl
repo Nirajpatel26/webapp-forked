@@ -125,7 +125,7 @@ source "amazon-ebs" "my-ami" {
   subnet_id         = var.subnet_id
   security_group_id = var.security_group_id
 
-  instance_type = "t2.micro"
+  instance_type = var.instance_type
   source_ami    = var.source_ami
   ssh_interface = "public_ip" # Ensures SSH via public IP
   ssh_username  = var.ssh_username
@@ -152,7 +152,7 @@ source "googlecompute" "gcp_image" {
 
 build {
   sources = [
-    "source.amazon-ebs.my-ami",
+    "source.amazon-ebs.my-ami","source.googlecompute.gcp_image"
   ]
 
   provisioner "file" {
