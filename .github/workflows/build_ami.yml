@@ -44,7 +44,7 @@ jobs:
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-    # This sets GOOGLE_APPLICATION_CREDENTIALS env var automatically
+          export_default_credentials: true
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
@@ -77,5 +77,5 @@ jobs:
             -var "server_port=${{ secrets.SERVER_PORT }}" \
             -var "db_host=${{ secrets.DB_HOST }}" \
             -var "gcp_zone=${{secrets.GCP_ZONE}}" \
-            -var "ami_name_gcp==${{secrets.AMI_NAME_GCP}}" \
+            -var "ami_name_gcp=${{secrets.AMI_NAME_GCP}}" \
             webapp.pkr.hcl
