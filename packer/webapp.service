@@ -12,7 +12,6 @@ User=csye6225
 Group=csye6225
 WorkingDirectory=/opt/csye6225
 EnvironmentFile=/opt/csye6225/.env
-ExecStartPre=/usr/bin/npm install
 ExecStart=/usr/bin/npm run start
 Restart=always
 RestartSec=3
