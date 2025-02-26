@@ -79,3 +79,37 @@ jobs:
             -var "gcp_zone=${{secrets.GCP_ZONE}}" \
             -var "ami_name_gcp=${{secrets.AMI_NAME_GCP}}" \
             webapp.pkr.hcl
+
+      - name: Get the Most Recent GCP Machine Image and Provide It to the Demo Account
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          
+        run: |
+          echo "Retrieving latest GCP machine image..."
+          IMAGE_NAME=$(gcloud compute images list \
+            --project $GCP_PROJECT_ID \
+            --filter="name~'^custom-nodejs-app-'" \
+            --sort-by=~creationTimestamp \
+            --limit=1 \
+            --format="value(name)")
+ 
+          echo "Latest GCP Image Name: $IMAGE_NAME"
+          if [ -z "$IMAGE_NAME" ]; then
+            echo "No GCP machine image found matching custom-nodejs-app-*"
+            exit 1
+          fi
+ 
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+ 
+      - name: copy the GCP image to the demo project
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          DEMO_GCP_ACCOUNT_ID: ${{ secrets.DEMO_GCP_ACCOUNT_ID }}
+        run: |
+          echo "Copying image from DEV project ($GCP_PROJECT_ID) to DEMO project ($DEMO_GCP_ACCOUNT_ID)..."
+          gcloud compute images create "my-demo-image-$(date +%s)" \
+            --source-image=projects/${GCP_PROJECT_ID}/global/images/${IMAGE_NAME} \
+            --source-image-project=${GCP_PROJECT_ID} \
+            --project=${DEMO_GCP_ACCOUNT_ID} \
+            --family=custom-nodejs-app \
+            --description="Copied image from GCP DEV Account"
