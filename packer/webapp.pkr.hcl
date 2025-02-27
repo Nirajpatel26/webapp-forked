@@ -106,7 +106,7 @@ variable "ami_name_gcp" {
   default = "webami"
 }
 
-variable "gcp_project_id" {
+variable "gcp_account_id" {
   type    = string
   default = "dev-cyse6225-451904"
 }
@@ -144,7 +144,7 @@ source "amazon-ebs" "my-ami" {
   }
 }
 source "googlecompute" "gcp_image" {
-  project_id          = var.gcp_project_id
+  project_id          = var.gcp_account_id
   source_image_family = "ubuntu-2004-lts"
   image_name          = "webami-gcp-${local.timestamp}"
   machine_type        = "e2-medium"

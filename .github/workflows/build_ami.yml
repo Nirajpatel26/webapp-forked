@@ -108,15 +108,16 @@ jobs:
             
 
  
-      - name: copy the GCP image to the demo project
-        env:
-          GCP_ACCOUNT_ID: ${{ secrets.GCP_ACCOUNT_ID }}
-          DEMO_GCP_ACCOUNT_ID: ${{ secrets.DEMO_GCP_ACCOUNT_ID }}
+      - name: Share GCP Image with Demo Project
         run: |
-          echo "Copying image from DEV project ($GCP_ACCOUNT_ID) to DEMO project ($DEMO_GCP_ACCOUNT_ID)..."
-          gcloud compute images create "my-demo-image-$(date +%s)" \
-            --source-image=projects/$GCP_ACCOUNT_ID/global/images/${GCP_IMAGE_ID} \
-            --source-image-project=$GCP_ACCOUNT_ID \
-            --project=$DEMO_GCP_ACCOUNT_ID \
-            --family=custom-nodejs-app \
-            --description="Copied image from DEV"
+          if [[ -n "$GCP_IMAGE_ID" ]]; then
+            gcloud compute images add-iam-policy-binding $GCP_IMAGE_ID \
+              --project=${{ secrets.GCP_ACCOUNT_ID }} \
+              --member="serviceAccount:${{ secrets.GCP_SA_DEMO }}" \
+              --role="roles/compute.imageUser"
+          
+            echo "Image $GCP_IMAGE_ID shared with DEMO Project"
+          else
+            echo "No GCP Image ID found!"
+            exit 1
+          fi
