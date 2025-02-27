@@ -98,8 +98,7 @@ jobs:
         run: |
           echo "Retrieving latest GCP machine image..."
           IMAGE_NAME=$(gcloud compute images list \
-            --project $GCP_PROJECT_ID \
-            --filter="name~'^custom-nodejs-app-'" \
+            --project ${{ secrets.GCP_PROJECT_ID }} \
             --sort-by=~creationTimestamp \
             --limit=1 \
             --format="value(name)")
@@ -115,12 +114,12 @@ jobs:
       - name: copy the GCP image to the demo project
         env:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-          DEMO_GCP_ACCOUNT_ID: ${{ secrets.DEMO_GCP_ACCOUNT_ID }}
+          GCP_DEMO_PROJECT_ID: ${{ secrets.DEMO_GCP_ACCOUNT_ID }}
         run: |
-          echo "Copying image from DEV project ($GCP_PROJECT_ID) to DEMO project ($DEMO_GCP_ACCOUNT_ID)..."
+          echo "Copying image from DEV project (${{ secrets.GCP_PROJECT_ID }}) to DEMO project (${{secrets.DEMO_GCP_ACCOUNT_ID}})..."
           gcloud compute images create "my-demo-image-$(date +%s)" \
-            --source-image=projects/${GCP_PROJECT_ID}/global/images/${IMAGE_NAME} \
-            --source-image-project=${GCP_PROJECT_ID} \
-            --project=${DEMO_GCP_ACCOUNT_ID} \
+            --source-image=projects/${{ secrets.GCP_PROJECT_ID }}/global/images/${IMAGE_NAME} \
+            --source-image-project=${{ secrets.GCP_PROJECT_ID }} \
+            --project=${{secrets.DEMO_GCP_ACCOUNT_ID}} \
             --family=custom-nodejs-app \
-            --description="Copied image from GCP DEV Account"
+            --description="Copied image from DEV"
