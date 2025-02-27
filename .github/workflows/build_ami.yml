@@ -80,6 +80,17 @@ jobs:
             -var "ami_name_gcp=${{secrets.AMI_NAME_GCP}}" \
             webapp.pkr.hcl
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          
       - name: Get the Most Recent GCP Machine Image and Provide It to the Demo Account
         env:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
