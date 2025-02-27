@@ -129,7 +129,7 @@ jobs:
         run: |
           echo "Copying image from DEV ($GCP_ACCOUNT_ID) to DEMO ($DEMO_GCP_ACCOUNT_ID)..."
           gcloud compute images create "webapp-$(date +%s)" \
-            --source-image="$IMAGE_NAME" \
+            --source-image="$GCP_IMAGE_ID" \
             --source-image-project="$GCP_ACCOUNT_ID" \
             --project="$DEMO_GCP_ACCOUNT_ID" \
             --description="Copied from DEV on $(date)"
