@@ -98,7 +98,7 @@ jobs:
         run: |
           echo "Retrieving latest GCP machine image..."
           IMAGE_NAME=$(gcloud compute images list \
-            --project ${{ secrets.GCP_PROJECT_ID }} \
+            --project=${{ secrets.GCP_PROJECT_ID }} \
             --sort-by=~creationTimestamp \
             --limit=1 \
             --format="value(name)")
