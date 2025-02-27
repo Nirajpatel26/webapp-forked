@@ -49,7 +49,7 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: ${{ secrets.GCP_ACCOUNT_ID }}
 
 
       - name: Run Packer
@@ -89,17 +89,17 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: ${{ secrets.GCP_ACCOUNT_ID }}
           
       - name: Get the Most Recent GCP Machine Image and Provide It to the Demo Account
         env:
-          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_ACCOUNT_ID }}
           
         run: |
           echo "GCP_project_id" $GCP_PROJECT_ID
           echo "Retrieving latest GCP machine image..."
           IMAGE_NAME=$(gcloud compute images list \
-            --project=$GCP_PROJECT_ID  \
+            --project=$GCP_ACCOUNT_ID  \
             --filter="name~'custom-nodejs-app-*'" \
             --sort-by=~creationTimestamp \
             --limit=1 \
@@ -115,13 +115,13 @@ jobs:
  
       - name: copy the GCP image to the demo project
         env:
-          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-          GCP_DEMO_PROJECT_ID: ${{ secrets.DEMO_GCP_ACCOUNT_ID }}
+          GCP_ACCOUNT_ID: ${{ secrets.GCP_ACCOUNT_ID }}
+          DEMO_GCP_ACCOUNT_ID: ${{ secrets.DEMO_GCP_ACCOUNT_ID }}
         run: |
-          echo "Copying image from DEV project ($GCP_PROJECT_ID) to DEMO project ($GCP_DEMO_PROJECT_ID)..."
+          echo "Copying image from DEV project ($GCP_ACCOUNT_ID) to DEMO project ($DEMO_GCP_ACCOUNT_ID)..."
           gcloud compute images create "my-demo-image-$(date +%s)" \
-            --source-image=projects/$GCP_PROJECT_ID/global/images/${IMAGE_NAME} \
-            --source-image-project=$GCP_PROJECT_ID \
-            --project=$GCP_DEMO_PROJECT_ID \
+            --source-image=projects/$GCP_ACCOUNT_ID/global/images/${IMAGE_NAME} \
+            --source-image-project=$GCP_ACCOUNT_ID \
+            --project=$DEMO_GCP_ACCOUNT_ID \
             --family=custom-nodejs-app \
             --description="Copied image from DEV"
