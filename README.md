@@ -36,7 +36,6 @@ Once everything is set up, start the application:
 npm start
 ```
 
-
-
-  
+### 4.Packer
+We have implimented packer to build AMI in AWS as well as in GCP. 
   
