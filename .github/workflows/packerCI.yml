@@ -32,10 +32,6 @@ jobs:
       run: |
         cd packer
         packer fmt -check .
-      
-      # Fail if packer fmt makes changes
-      continue-on-error: false
-      if: failure() # This ensures that the job fails if packer fmt makes modifications
 
     - name: Run packer validate
       id: validate
