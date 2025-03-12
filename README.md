@@ -37,5 +37,5 @@ npm start
 ```
 
 ### 4.Packer
-We have implimented packer to build AMI in AWS as well as in GCP. 
+We have implimented packer to build AMI in AWS as well as in GCP.      
     
