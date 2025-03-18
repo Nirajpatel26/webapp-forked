@@ -166,14 +166,14 @@ build {
     script = "scripts/sh1.sh"
   }
 
-//  provisioner "shell" {
-//    script = "scripts/sh2.sh"
-//    environment_vars = [
-//      "DB_USERNAME=${var.db_username}",
-//      "DB_PASSWORD=${var.db_password}",
-//      "DB_DATABASE=${var.db_database}"
-//    ]
-//  }
+  //  provisioner "shell" {
+  //    script = "scripts/sh2.sh"
+  //    environment_vars = [
+  //      "DB_USERNAME=${var.db_username}",
+  //      "DB_PASSWORD=${var.db_password}",
+  //      "DB_DATABASE=${var.db_database}"
+  //    ]
+  //  }
 
   provisioner "shell" {
     script = "scripts/sh3.sh"
