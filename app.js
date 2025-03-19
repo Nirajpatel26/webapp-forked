@@ -2,7 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const {sequelize,HealthCheck} = require('./src/db/sequelize');
 const setHeaders = require('./src/middleware/setHeaders');
-
+const file_route = require('./src/routes/file_route')
 
 
 
@@ -59,6 +59,8 @@ app.all('/', setHeaders ,async (req, res) => {
     console.log("Health check unsuccessful");
     res.status(405).send();
 })
+
+app.use('/',file_route);
 
 app.get('*', setHeaders, (req, res) => {
     console.log(`404 Not Found: ${req.method} ${req.path}`);
