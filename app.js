@@ -60,6 +60,8 @@ app.all('/', setHeaders ,async (req, res) => {
     res.status(405).send();
 })
 
+app.use(setHeaders);
+
 app.use('/',file_route);
 
 app.get('*', setHeaders, (req, res) => {
