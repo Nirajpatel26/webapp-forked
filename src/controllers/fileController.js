@@ -2,6 +2,7 @@ const File = require('../models/file');
 const s3 = require('../utils/s3');
 const { v4: uuidv4 } = require('uuid');
 
+
 exports.addFile = async (req, res) => {
   try {
     const file = req.file;
@@ -84,14 +85,26 @@ exports.deleteFile = async (req, res) => {
       Bucket: process.env.AWS_S3_BUCKET_NAME,
       Key: key
     };
-
-    // Delete from S3
-    await s3.deleteObject(params).promise();
-
-    // Delete from database
-    await File.destroy({ where: { id: fileId } });
-
-    res.status(204).send();
+    try {
+      // Delete from S3
+      await s3.deleteObject(params).promise();
+      
+     
+      await File.destroy({ where: { id: fileId } });
+      
+      
+      return res.status(204).send();
+    } catch (s3Error) {
+      console.error(`S3 deletion error: ${s3Error.message}`);
+      
+      
+      if (s3Error.code === 'AccessDenied') {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+      
+      
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
   } catch (error) {
     console.error(`Error deleting file: ${error.message}`);
     res.status(500).json({ message: 'Internal Server Error' });
