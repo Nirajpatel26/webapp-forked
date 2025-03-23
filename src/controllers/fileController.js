@@ -1,6 +1,7 @@
 const File = require('../models/file');
 const s3 = require('../utils/s3');
 const { v4: uuidv4 } = require('uuid');
+const logger = require('../middleware/logger')
 
 
 exports.addFile = async (req, res) => {
@@ -43,7 +44,7 @@ exports.addFile = async (req, res) => {
       upload_date: newFile.upload_date
     });
   } catch (error) {
-    console.error(`Error adding file: ${error.message}`);
+    logger.error(`Error adding file: ${error.message}`);
     res.status(400).json({ message: 'Bad Request' });
   }
 };
@@ -54,6 +55,7 @@ exports.getFile = async (req, res) => {
     const file = await File.findOne({ where: { id: fileId } });
 
     if (!file) {
+      logger.Info(`file not found which you were trying to get`);
       return res.status(404).json({ message: 'File not found' });
     }
 
@@ -64,7 +66,7 @@ exports.getFile = async (req, res) => {
       upload_date: file.upload_date
     });
   } catch (error) {
-    console.error(`Error fetching file: ${error.message}`);
+    logger.error(`Error fetching file: ${error.message}`);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
@@ -95,18 +97,19 @@ exports.deleteFile = async (req, res) => {
       
       return res.status(204).send();
     } catch (s3Error) {
-      console.error(`S3 deletion error: ${s3Error.message}`);
+      logger.error(`S3 deletion error: ${s3Error.message}`);
       
       
       if (s3Error.code === 'AccessDenied') {
+        logger.warn('You are Unauthorized for GET request')
         return res.status(401).json({ message: 'Unauthorized' });
       }
       
-      
+      logger.debug('Internal Server Error On GET request')
       return res.status(500).json({ message: 'Internal Server Error' });
     }
   } catch (error) {
-    console.error(`Error deleting file: ${error.message}`);
+    logger.error(`Error deleting file: ${error.message}`);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };

@@ -166,6 +166,10 @@ build {
     script = "scripts/sh1.sh"
   }
 
+  provisioner "shell" {
+    script = "scripts/cloudwatch.sh"
+  }
+
   //  provisioner "shell" {
   //    script = "scripts/sh2.sh"
   //    environment_vars = [
