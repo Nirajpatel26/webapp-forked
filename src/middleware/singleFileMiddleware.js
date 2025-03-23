@@ -1,7 +1,7 @@
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-const logger = require('./logger');
+const {logger} = require('./logger');
 
 function singleFileMiddleware(req, res, next) {
   // Check for query parameters

@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const {sequelize,HealthCheck} = require('./src/db/sequelize');
 const setHeaders = require('./src/middleware/setHeaders');
 const file_route = require('./src/routes/file_route');
-const logger = require('./src/middleware/logger');
+const {logger} = require('./src/middleware/logger');
 
 
 
@@ -73,7 +73,7 @@ app.get('*', setHeaders, (req, res) => {
 // Start the server
 const port = process.env.SERVER_PORT || 3000;
 const server = app.listen(port, () => {
-    logger.info(`Server is running on port ${port}`);
+    console.log(`Server is running on port ${port}`);
 });
 
 module.exports={app,server};

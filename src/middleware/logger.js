@@ -1,6 +1,6 @@
 const winston = require('winston');
 const WinstonCloudWatch = require('winston-cloudwatch');
-
+const StatsD =require('statsd-client')
 
 const logger = winston.createLogger({
   level: 'info',
