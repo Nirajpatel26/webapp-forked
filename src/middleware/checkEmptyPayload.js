@@ -1,3 +1,5 @@
+const logger = require('./logger');
+
 const checkEmptyPayload = (req, res, next) => {
 
     if ((req.path === '/v1/file' && (req.method === 'GET' || req.method === 'DELETE')) || 
@@ -9,7 +11,7 @@ const checkEmptyPayload = (req, res, next) => {
           req.get("Authorization") || 
           req.get("authentication")) {
         
-        console.log("API request failed: Payload should be empty");
+        logger.error("API request failed: Payload should be empty");
         return res.status(400).json({ message: 'Bad Request' });
       }
     }

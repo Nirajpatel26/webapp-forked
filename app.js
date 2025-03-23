@@ -2,7 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const {sequelize,HealthCheck} = require('./src/db/sequelize');
 const setHeaders = require('./src/middleware/setHeaders');
-const file_route = require('./src/routes/file_route')
+const file_route = require('./src/routes/file_route');
+const logger = require('./src/middleware/logger');
 
 
 
@@ -15,9 +16,9 @@ app.use(express.json());
 const connectToDb = async () => {
     try {
         await sequelize.authenticate();
-        console.log("Database connected successfully.");
+        logger.info("Database connected successfully.");
     } catch (error) {
-        console.log(`Database connection error: ${error.message}`);
+        logger.info(`Database connection error: ${error.message}`);
     }
 };
 
@@ -29,7 +30,7 @@ app.all("/healthz", setHeaders ,async (req, res) => {
 
         if (req.method !== 'GET') {
             
-            console.log(`Health check failed: Method ${req.method} not allowed`);
+            logger.info(`Health check failed: Method ${req.method} not allowed`);
             return res.status(405).send();
         }
 
@@ -37,26 +38,26 @@ app.all("/healthz", setHeaders ,async (req, res) => {
         if (Object.keys(req.body).length > 0 || Object.keys(req.query).length > 0 || req.get("Content-Length")!== undefined || req.get("Authorization") ||
         req.get("authentication")  ) {
             
-            console.log("Health check failed: Payload should be empty");
+            logger.warn("Health check failed: Payload should be empty");
             return res.status(400).send();
         }
        
         await HealthCheck.create({
             datetime: new Date()
         });
-        console.log('Health check successful');
+        logger.info('Health check successful');
 
         res.status(200).send();
     
     } catch (error) {
         
-        console.log(`Health check error: ${error.message}`);
+        logger.warn(`Health check error: ${error.message}`);
         res.status(503).send();
     }
 });
 
 app.all('/', setHeaders ,async (req, res) => {
-    console.log("Health check unsuccessful");
+    logger.error("Health check unsuccessful");
     res.status(405).send();
 })
 
@@ -65,14 +66,14 @@ app.use(setHeaders);
 app.use('/',file_route);
 
 app.get('*', setHeaders, (req, res) => {
-    console.log(`404 Not Found: ${req.method} ${req.path}`);
+    logger.error(`404 Not Found: ${req.method} ${req.path}`);
     return res.status(404).send();
   });
 
 // Start the server
 const port = process.env.SERVER_PORT || 3000;
 const server = app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    logger.info(`Server is running on port ${port}`);
 });
 
 module.exports={app,server};
