@@ -97,19 +97,19 @@ variable "db_host" {
 }
 
 
-variable "gcp_zone" {
-  type    = string
-  default = "us-central1-a"
-}
+#variable "gcp_zone" {
+#  type    = string
+#  default = "us-central1-a"
+#}
 
-variable "ami_name_gcp" {
-  default = "webami"
-}
+#variable "ami_name_gcp" {
+#  default = "webami"
+#}
 
-variable "gcp_account_id" {
-  type    = string
-  default = "dev-cyse6225-451904"
-}
+#variable "gcp_account_id" {
+#  type    = string
+#  default = "dev-cyse6225-451904"
+#}
 
 
 
@@ -143,18 +143,18 @@ source "amazon-ebs" "my-ami" {
     volume_type           = "gp2"
   }
 }
-source "googlecompute" "gcp_image" {
-  project_id          = var.gcp_account_id
-  source_image_family = "ubuntu-2004-lts"
-  image_name          = "webami-gcp-${local.timestamp}"
-  machine_type        = "e2-medium"
-  zone                = var.gcp_zone
-  ssh_username        = "ubuntu"
-}
+#source "googlecompute" "gcp_image" {
+#  project_id          = var.gcp_account_id
+#  source_image_family = "ubuntu-2004-lts"
+#  image_name          = "webami-gcp-${local.timestamp}"
+#  machine_type        = "e2-medium"
+#  zone                = var.gcp_zone
+#  ssh_username        = "ubuntu"
+#}
 
 build {
   sources = [
-    "source.amazon-ebs.my-ami", "source.googlecompute.gcp_image"
+    "source.amazon-ebs.my-ami"
   ]
 
   provisioner "file" {
