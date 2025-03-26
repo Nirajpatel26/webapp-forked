@@ -6,13 +6,12 @@ sudo apt-get install -y npm
 
 # Step 8: Install necessary Node.js packages for the project
 echo "-------Installing Node.js project dependencies-------"
-sudo chmod 755 /opt/csye6225
+sudo chown csye6225:csye6225 /opt/csye6225
 cd /opt/csye6225 || exit 1
 
 sudo npm install
 echo "------- installing dotenv-------"
 sudo npm install dotenv
-sudo chmod 755 /opt/csye6225
 # sudo Node app.js
 echo "-------COMPLETE-------"
 # node app.js
@@ -26,6 +25,12 @@ DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
 DB_DATABASE=${DB_DATABASE}
 EOF
+
+sudo chown csye6225:csye6225 /opt/csye6225/.env
+sudo chmod 755 /opt/csye6225/.env
+
+
+
 
 
 
