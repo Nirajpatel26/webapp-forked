@@ -1,4 +1,4 @@
-const {logger} = require('./logger');
+const {logger,statsd} = require('./logger');
 
 const checkEmptyPayload = (req, res, next) => {
   const startTime = new Date();

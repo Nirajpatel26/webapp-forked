@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const {sequelize,HealthCheck} = require('./src/db/sequelize');
 const setHeaders = require('./src/middleware/setHeaders');
 const file_route = require('./src/routes/file_route');
-const {logger} = require('./src/middleware/logger');
+const {logger,statsd} = require('./src/middleware/logger');
 
 
 

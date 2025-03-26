@@ -1,7 +1,7 @@
 const File = require('../models/file');
 const s3 = require('../utils/s3');
 const { v4: uuidv4 } = require('uuid');
-const logger = require('../middleware/logger')
+const {logger,statsd} = require('../middleware/logger')
 
 
 exports.addFile = async (req, res) => {

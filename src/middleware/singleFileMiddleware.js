@@ -1,7 +1,7 @@
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-const {logger} = require('./logger');
+const {logger,statsd} = require('./logger');
 
 function singleFileMiddleware(req, res, next) {
   const startTime = new Date();
