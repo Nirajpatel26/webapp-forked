@@ -113,56 +113,56 @@ jobs:
             -var "ami_name_gcp=${{secrets.AMI_NAME_GCP}}" \
             webapp.pkr.hcl
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
+      # - name: Authenticate to Google Cloud
+      #   uses: google-github-actions/auth@v1
+      #   with:
+      #     credentials_json: ${{ secrets.GCP_SA_KEY }}
+      #     export_default_credentials: true
 
 
           
-      - name: Retrieve Latest GCP Image and Save IMAGE_ID
-        run: |
-          GCP_IMAGE_ID=$(gcloud compute images list \
-          --project=${{ secrets.GCP_ACCOUNT_ID }} \
-          --sort-by="~creationTimestamp" \
-          --limit=1 \
-          --format="value(NAME)")
+      # - name: Retrieve Latest GCP Image and Save IMAGE_ID
+      #   run: |
+      #     GCP_IMAGE_ID=$(gcloud compute images list \
+      #     --project=${{ secrets.GCP_ACCOUNT_ID }} \
+      #     --sort-by="~creationTimestamp" \
+      #     --limit=1 \
+      #     --format="value(NAME)")
 
-          if [[ -n "$GCP_IMAGE_ID" ]]; then
-              echo "Found latest GCP Image: $GCP_IMAGE_ID"
-              echo "GCP_IMAGE_ID=$GCP_IMAGE_ID" >> $GITHUB_ENV
-          else
-              echo "No GCP Image found!"
-              exit 1
-          fi
+      #     if [[ -n "$GCP_IMAGE_ID" ]]; then
+      #         echo "Found latest GCP Image: $GCP_IMAGE_ID"
+      #         echo "GCP_IMAGE_ID=$GCP_IMAGE_ID" >> $GITHUB_ENV
+      #     else
+      #         echo "No GCP Image found!"
+      #         exit 1
+      #     fi
 
 
             
 
  
-      - name: Share GCP Image with Demo Project
-        run: |
-          if [[ -n "$GCP_IMAGE_ID" ]]; then
-            gcloud compute images add-iam-policy-binding $GCP_IMAGE_ID \
-              --project=${{ secrets.GCP_ACCOUNT_ID }} \
-              --member="serviceAccount:${{ secrets.GCP_SA_DEMO }}" \
-              --role="roles/compute.imageUser"
+      # - name: Share GCP Image with Demo Project
+      #   run: |
+      #     if [[ -n "$GCP_IMAGE_ID" ]]; then
+      #       gcloud compute images add-iam-policy-binding $GCP_IMAGE_ID \
+      #         --project=${{ secrets.GCP_ACCOUNT_ID }} \
+      #         --member="serviceAccount:${{ secrets.GCP_SA_DEMO }}" \
+      #         --role="roles/compute.imageUser"
           
-            echo "Image $GCP_IMAGE_ID shared with DEMO Project"
-          else
-            echo "No GCP Image ID found!"
-            exit 1
-          fi
+      #       echo "Image $GCP_IMAGE_ID shared with DEMO Project"
+      #     else
+      #       echo "No GCP Image ID found!"
+      #       exit 1
+      #     fi
 
-      - name: Copy GCP Image to Demo Project
-        env:
-          GCP_ACCOUNT_ID: ${{ secrets.GCP_ACCOUNT_ID }}
-          DEMO_GCP_ACCOUNT_ID: ${{ secrets.DEMO_GCP_ACCOUNT_ID }}
-        run: |
-          echo "Copying image from DEV ($GCP_ACCOUNT_ID) to DEMO ($DEMO_GCP_ACCOUNT_ID)..."
-          gcloud compute images create "webapp-$(date +%s)" \
-            --source-image="$GCP_IMAGE_ID" \
-            --source-image-project="$GCP_ACCOUNT_ID" \
-            --project="$DEMO_GCP_ACCOUNT_ID" \
-            --description="Copied from DEV on $(date)"
+      # - name: Copy GCP Image to Demo Project
+      #   env:
+      #     GCP_ACCOUNT_ID: ${{ secrets.GCP_ACCOUNT_ID }}
+      #     DEMO_GCP_ACCOUNT_ID: ${{ secrets.DEMO_GCP_ACCOUNT_ID }}
+      #   run: |
+      #     echo "Copying image from DEV ($GCP_ACCOUNT_ID) to DEMO ($DEMO_GCP_ACCOUNT_ID)..."
+      #     gcloud compute images create "webapp-$(date +%s)" \
+      #       --source-image="$GCP_IMAGE_ID" \
+      #       --source-image-project="$GCP_ACCOUNT_ID" \
+      #       --project="$DEMO_GCP_ACCOUNT_ID" \
+      #       --description="Copied from DEV on $(date)"
