@@ -16,18 +16,22 @@ sudo npm install dotenv
 echo "-------COMPLETE-------"
 # node app.js
 
+cd /opt/csye6225
+
 # Create .env file with secrets
 echo "-------Creating .env file-------"
-cat << EOF > .env
+sudo bash -c "cat << EOF > /opt/csye6225/.env
 SERVER_PORT=${SERVER_PORT}
 DB_HOST=${DB_HOST}
 DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
 DB_DATABASE=${DB_DATABASE}
-EOF
+EOF"
 
 sudo chown csye6225:csye6225 /opt/csye6225/.env
-sudo chmod 755 /opt/csye6225/.env
+sudo chmod 600 /opt/csye6225/.env
+
+
 
 
 
