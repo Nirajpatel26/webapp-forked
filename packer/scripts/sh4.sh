@@ -6,7 +6,7 @@ sudo apt-get install -y npm
 
 # Step 8: Install necessary Node.js packages for the project
 echo "-------Installing Node.js project dependencies-------"
-sudo chown csye6225:csye6225 /opt/csye6225
+
 cd /opt/csye6225 || exit 1
 
 sudo npm install
@@ -28,8 +28,12 @@ DB_PASSWORD=${DB_PASSWORD}
 DB_DATABASE=${DB_DATABASE}
 EOF"
 
+sudo chown -R csye6225:csye6225 /opt/csye6225
+sudo chmod 755 /opt/csye6225/
+
+
 sudo chown csye6225:csye6225 /opt/csye6225/.env
-sudo chmod 600 /opt/csye6225/.env
+sudo chmod 755 /opt/csye6225/.env
 
 
 
