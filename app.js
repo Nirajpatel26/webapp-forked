@@ -20,10 +20,19 @@ const connectToDb = async () => {
         const duration = new Date() - startTime;
         statsd.timing('db.connection.time', duration);
         statsd.increment('db.connection.success');
-        logger.info("Database connected successfully.");
+        logger.info({
+            type: 'DB_CONNECTION',
+            message: 'Database connected successfully',
+            duration
+        });
     } catch (error) {
         statsd.increment('db.connection.error');
-        logger.info(`Database connection error: ${error.message}`);
+        logger.error({
+            type: 'DB_CONNECTION_ERROR',
+            message: 'Database connection error',
+            error: error.message,
+            stack: error.stack
+        });
     }
 };
 
@@ -37,7 +46,12 @@ app.all("/healthz", setHeaders ,async (req, res) => {
 
         if (req.method !== 'GET') {
             
-            logger.info(`Health check failed: Method ${req.method} not allowed`);
+            logger.warn({
+                type: 'METHOD_NOT_ALLOWED',
+                message: `Health check failed: Method ${req.method} not allowed`,
+                method: req.method,
+                path: '/healthz'
+            });
             statsd.increment('api.healthz.method_not_allowed');
             return res.status(405).send();
         }
@@ -46,7 +60,15 @@ app.all("/healthz", setHeaders ,async (req, res) => {
         if (Object.keys(req.body).length > 0 || Object.keys(req.query).length > 0 || req.get("Content-Length")!== undefined || req.get("Authorization") ||
         req.get("authentication")  ) {
             
-            logger.warn("Health check failed: Payload should be empty");
+            logger.warn({
+                type: 'BAD_REQUEST',
+                message: 'Health check failed: Payload should be empty',
+                method: req.method,
+                path: '/healthz',
+                hasBody: Object.keys(req.body).length > 0,
+                hasQuery: Object.keys(req.query).length > 0,
+                hasContentLength: req.get("Content-Length") !== undefined
+            });
             statsd.increment('api.healthz.bad_request');
             return res.status(400).send();
         }
@@ -57,14 +79,34 @@ app.all("/healthz", setHeaders ,async (req, res) => {
         });
         const dbDuration = new Date() - dbStartTime;
         statsd.timing('db.healthcheck.create.time', dbDuration);
-        logger.info('Health check successful');
+        logger.info({
+            type: 'DB_CREATE',
+            message: 'Health check record created',
+            operation: 'create',
+            duration: dbDuration
+        });
+        
+        logger.info({
+            type: 'API_RESPONSE',
+            message: 'Health check successful',
+            method: 'GET',
+            path: '/healthz',
+            status: 200
+        });
         statsd.increment('api.healthz.success');
 
         res.status(200).send();
     
     } catch (error) {
         
-        logger.warn(`Health check error: ${error.message}`);
+        logger.error({
+            type: 'API_ERROR',
+            message: 'Health check error',
+            method: req.method,
+            path: '/healthz',
+            error: error.message,
+            stack: error.stack
+        });
         statsd.increment('api.healthz.error');
         res.status(503).send();
     }finally {
@@ -75,7 +117,12 @@ app.all("/healthz", setHeaders ,async (req, res) => {
 
 app.all('/', setHeaders ,async (req, res) => {
     statsd.increment('api.root');
-    logger.error("Health check unsuccessful");
+    logger.error({
+        type: 'METHOD_NOT_ALLOWED',
+        message: 'Health check unsuccessful',
+        method: req.method,
+        path: '/'
+    });
     res.status(405).send();
 })
 
@@ -85,7 +132,12 @@ app.use('/',file_route);
 
 app.get('*', setHeaders, (req, res) => {
     statsd.increment('api.not_found');
-    logger.error(`404 Not Found: ${req.method} ${req.path}`);
+    logger.error({
+        type: 'NOT_FOUND',
+        message: '404 Not Found',
+        method: req.method,
+        path: req.path
+    });
     return res.status(404).send();
   });
 
@@ -93,6 +145,11 @@ app.get('*', setHeaders, (req, res) => {
 const port = process.env.SERVER_PORT || 3000;
 const server = app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
+    logger.info({
+        type: 'SERVER_START',
+        message: `Server is running on port ${port}`,
+        port
+    });
 });
 
 module.exports={app,server};
