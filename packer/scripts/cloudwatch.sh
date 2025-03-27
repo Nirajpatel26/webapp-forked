@@ -8,11 +8,13 @@ sudo apt-get clean
 echo "-------Creating CloudWatch agent configuration-------"
 sudo mkdir -p /opt/aws/amazon-cloudwatch-agent/etc/
 
-cat <<'CWAGENT_JSON' > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
 {
   "agent": {
     "metrics_collection_interval": 10,
-    "logfile": "/var/log/amazon-cloudwatch-agent.log"
+    "logfile": "/opt/aws/amazon-cloudwatch-agent/log/amazon-cloudwatch-agent.log",
+    "run_as_user": "root",
+    "flush_interval": 1 
   },
   "logs": {
     "logs_collected": {
@@ -22,29 +24,28 @@ cat <<'CWAGENT_JSON' > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-ag
             "file_path": "/var/log/webapp.log",
             "log_group_name": "/csye6225/webapp",
             "log_stream_name": "webappLogStream",
-            "timestamp_format": "%Y-%m-%d %H:%M:%S",
-            "log_format": "json"
+            "timestamp_format": "%Y-%m-%d %H:%M:%S"
           }
         ]
       }
-    },
-    "log_stream_name": "cloudwatch_log_stream"
-  },
-  "metrics":{
-    "metrics_collected":{
-       "statsd":{
-          "service_address":":8125",
-          "metrics_collection_interval":5,
-          "metrics_aggregation_interval":10
-       }
     }
- }
+  },
+  "metrics": {
+    "namespace": "webapp",
+    "metrics_collected": {
+      "statsd": {
+        "service_address": ":8125",
+        "metrics_collection_interval": 10,
+        "metrics_aggregation_interval": 10
+      }
+    }
+  }
 }
-CWAGENT_JSON
+EOF
 
 echo "-------Setting permissions for CloudWatch agent configuration-------"
 sudo chown root:root /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
-sudo chmod 755 /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+sudo chmod 644 /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
 
 # Start CloudWatch agent
 echo "-------Starting CloudWatch agent-------"
