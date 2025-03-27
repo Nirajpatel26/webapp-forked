@@ -8,7 +8,7 @@ sudo apt-get clean
 echo "-------Creating CloudWatch agent configuration-------"
 sudo mkdir -p /opt/aws/amazon-cloudwatch-agent/etc/
 
-cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+cat <<'CWAGENT_JSON' > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
 {
   "agent": {
     "metrics_collection_interval": 10,
@@ -40,11 +40,11 @@ cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agen
     }
   }
 }
-EOF
+CWAGENT_JSON
 
 echo "-------Setting permissions for CloudWatch agent configuration-------"
 sudo chown root:root /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
-sudo chmod 644 /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+sudo chmod 755 /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
 
 # Start CloudWatch agent
 echo "-------Starting CloudWatch agent-------"
