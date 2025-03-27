@@ -19,9 +19,11 @@ cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agen
           "files": {
               "collect_list": [
                   {
-                      "file_path": "/var/log/tomcat9/csye6225.log",
-                      "log_group_name": "csye6225",
-                      "log_stream_name": "webapp"
+                      "file_path": "/var/log/webapp.log",
+                      "log_group_name": "/csye6225/webapp",
+                      "log_stream_name": "webappLogStream",
+                      "timestamp_format": "%Y-%m-%d %H:%M:%S",
+                      "log_format":"json"
                   }
               ]
           }

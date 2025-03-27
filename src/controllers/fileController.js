@@ -10,7 +10,7 @@ exports.addFile = async (req, res) => {
   try {
     const file = req.file;
     if (!file) {
-      logger.warn('No file provided', { type: 'FILE_UPLOAD_ERROR' });
+      logger.warn('No file provided');
       return res.status(400).json({ message: 'No file provided' });
     }
 
@@ -36,13 +36,7 @@ exports.addFile = async (req, res) => {
     const s3Duration = new Date() - s3StartTime;
     statsd.timing('s3.upload.time', s3Duration);
     
-    logger.info('File uploaded to S3', { 
-      type: 'S3_UPLOAD',
-      fileId,
-      duration: s3Duration,
-      bucket: params.Bucket,
-      key: params.Key
-    });
+    logger.info(`File uploaded to S3 ${s3Duration}`);
 
     const dbStartTime = new Date();   // Start timer for database operation
     const newFile = await File.create({
@@ -55,11 +49,7 @@ exports.addFile = async (req, res) => {
     const dbDuration = new Date() - dbStartTime;
     statsd.timing('db.create.time', dbDuration);
 
-    logger.info('File record created in database', {
-      type: 'DB_CREATE',
-      fileId,
-      duration: dbDuration
-    });
+    logger.info(`File record created in database ${dbDuration}`);
 
     res.status(201).json({
       file_name: newFile.file_name,
@@ -71,22 +61,9 @@ exports.addFile = async (req, res) => {
     const apiDuration = new Date() - apiStartTime;
     statsd.timing('api.post.file.time', apiDuration);
 
-    logger.info('File added successfully', {
-      type: 'API_RESPONSE',
-      method: 'POST',
-      path: '/file',
-      duration: apiDuration,
-      status: 201
-    });
+    logger.info(`File added successfully`);
   } catch (error) {
-    logger.error({
-      type: 'API_ERROR',
-      message: 'Error adding file',
-      method: 'POST',
-      path: '/v1/file',
-      error: error.message,
-      stack: error.stack
-    });
+    logger.error(`Error adding file`,error);
     statsd.increment('api.post.file.error');
     res.status(400).json({ message: 'Bad Request' });
   }
@@ -98,35 +75,18 @@ exports.getFile = async (req, res) => {
   try {
     const fileId = req.params.id;
 
-    logger.info({
-      type: 'API_REQUEST',
-      message: 'Get file request received',
-      method: 'GET',
-      path: `/v1/file/${fileId}`
-    });
+    logger.info(`Get file request received ${fileId}`);
 
     const dbStartTime = new Date()
     const file = await File.findOne({ where: { id: fileId } });
     const dbDuration = new Date() - dbStartTime;
     statsd.timing('db.findOne.time', dbDuration);
 
-    logger.info({
-      type: 'DB_QUERY',
-      message: 'Database query executed',
-      operation: 'findOne',
-      fileId,
-      duration: dbDuration
-    });
+    logger.info(`Database query executed ${dbDuration}`);
 
 
     if (!file) {
-      logger.warn({
-        type: 'NOT_FOUND',
-        message: 'File not found',
-        fileId,
-        method: 'GET',
-        path: `/v1/file/${fileId}`
-      });
+      logger.warn(`File not found`);
       return res.status(404).json({ message: 'File not found' });
     }
 
@@ -139,24 +99,10 @@ exports.getFile = async (req, res) => {
 
     const apiDuration = new Date() - apiStartTime;
     statsd.timing('api.get.file.time', apiDuration);
-    logger.info({
-      type: 'API_RESPONSE',
-      message: 'File retrieved successfully',
-      method: 'GET',
-      path: `/v1/file/${fileId}`,
-      duration: apiDuration,
-      status: 200
-    });
+    logger.info(`File retrieved successfully ${apiDuration}`);
   } catch (error) {
-    logger.error({
-      type: 'API_ERROR',
-      message: 'Error fetching file',
-      method: 'GET',
-      path: `/v1/file/${req.params.id}`,
-      error: error.message,
-      stack: error.stack
-    });
-    statsd.increment('api.get.file.error');
+    logger.error(`Error fetching file`);
+    statsd.increment('api.get.file.error',error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
@@ -166,33 +112,16 @@ exports.deleteFile = async (req, res) => {
   statsd.increment('api.delete.file');
   try {
     const fileId = req.params.id;
-    logger.info({
-      type: 'API_REQUEST',
-      message: 'Delete file request received',
-      method: 'DELETE',
-      path: `/v1/file/${fileId}`
-    });
+    logger.info(`Delete file request received ${fileId}`);
     const dbFindStartTime = new Date();
     const file = await File.findOne({ where: { id: fileId } });
     const dbFindDuration = new Date() - dbFindStartTime;
     statsd.timing('db.findOne.time', dbFindDuration);
 
-    logger.info({
-      type: 'DB_QUERY',
-      message: 'Database query executed',
-      operation: 'findOne',
-      fileId,
-      duration: dbFindDuration
-    });
+    logger.info(`Database query executed`);
 
     if (!file) {
-      logger.warn({
-        type: 'NOT_FOUND',
-        message: 'File not found for deletion',
-        fileId,
-        method: 'DELETE',
-        path: `/v1/file/${fileId}`
-      });
+      logger.warn(`File not found for deletion`);
       return res.status(404).json({ message: 'File not found' });
     }
 
@@ -210,81 +139,36 @@ exports.deleteFile = async (req, res) => {
       const s3Duration = new Date() - s3StartTime;
       statsd.timing('s3.deleteObject.time', s3Duration);
 
-      logger.info({
-        type: 'S3_DELETE',
-        message: 'File deleted from S3',
-        fileId,
-        duration: s3Duration,
-        bucket: params.Bucket,
-        key: params.Key
-      });
+      logger.info(`File deleted from S3`);
       
       const dbDeleteStartTime = new Date();
       await File.destroy({ where: { id: fileId } });
       const dbDeleteDuration = new Date() - dbDeleteStartTime;
       statsd.timing('db.destroy.time', dbDeleteDuration);
 
-      logger.info({
-        type: 'DB_DELETE',
-        message: 'File record deleted from database',
-        fileId,
-        duration: dbDeleteDuration
-      });
+      logger.info(`File record deleted from database`);
 
       const apiDuration = new Date() - apiStartTime;
       statsd.timing('api.delete.file.time', apiDuration);
       
-      logger.info({
-        type: 'API_RESPONSE',
-        message: 'File deleted successfully',
-        method: 'DELETE',
-        path: `/v1/file/${fileId}`,
-        duration: apiDuration,
-        status: 204
-      });
+      logger.info(`File deleted successfully`);
       
       return res.status(204).send();
     } catch (s3Error) {
-      logger.error({
-        type: 'S3_ERROR',
-        message: 'S3 deletion error',
-        fileId,
-        error: s3Error.message,
-        code: s3Error.code,
-        stack: s3Error.stack
-      });
+      logger.error(`S3 deletion error`);
       statsd.increment('s3.deleteObject.error');
       
       
       if (s3Error.code === 'AccessDenied') {
-        logger.warn({
-          type: 'UNAUTHORIZED',
-          message: 'Unauthorized for S3 deletion',
-          fileId,
-          method: 'DELETE',
-          path: `/v1/file/${fileId}`
-        });
+        logger.warn('Unauthorized for S3 deletion');
         return res.status(401).json({ message: 'Unauthorized' });
       }
       
-      logger.error({
-        type: 'SERVER_ERROR',
-        message: 'Internal Server Error on DELETE request',
-        fileId,
-        method: 'DELETE',
-        path: `/v1/file/${fileId}`
-      });
+      logger.error(`Internal Server Error on DELETE request`);
       return res.status(500).json({ message: 'Internal Server Error' });
     }
   } catch (error) {
-    logger.error({
-      type: 'API_ERROR',
-      message: 'Error deleting file',
-      method: 'DELETE',
-      path: `/v1/file/${req.params.id}`,
-      error: error.message,
-      stack: error.stack
-    });
+    logger.error(`Error deleting file`);
     statsd.increment('api.delete.file.error');
     res.status(500).json({ message: 'Internal Server Error' });
   }
@@ -292,11 +176,6 @@ exports.deleteFile = async (req, res) => {
 
 exports.badRequest = (req, res) => {
   statsd.increment('api.badRequest');
-  logger.warn({
-    type: 'BAD_REQUEST',
-    message: 'Bad request',
-    method: req.method,
-    path: req.path
-  });
+  logger.warn(`Bad request`);
   res.status(400).json({ message: 'Bad Request' });
 };
