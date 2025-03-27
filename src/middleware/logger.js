@@ -9,14 +9,25 @@ const logger = winston.createLogger({
     winston.format.json()
   ),
   transports: [
-    new winston.transports.File({ 
-      filename: '/var/log/webapp.log',
-      level: 'info',
-      handleExceptions: true,
-    })
+    new winston.transports.File({ filename: '/var/log/webapp.log' }),
   ]
 });
 
+logger.add(
+  new WinstonCloudWatch({
+    logGroupName:'/csye6225/webapp',
+    logStreamName:'webappLogStream',
+    awsRegion: process.env.AWS_REGION || 'us-east-1',
+    messageFormatter: ({ level, message, ...meta }) => {
+      return JSON.stringify({
+        level,
+        message,
+        timestamp: new Date().toISOString(),
+        ...meta,
+      });
+    },
+  })
+);
 
 const statsd = new StatsD({
   port: 8125,
