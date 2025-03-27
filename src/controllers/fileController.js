@@ -10,7 +10,7 @@ exports.addFile = async (req, res) => {
   try {
     const file = req.file;
     if (!file) {
-      logger.warn('No file provided');
+      logger.warn({message:'No file provided'});
       return res.status(400).json({ message: 'No file provided' });
     }
 
@@ -36,7 +36,7 @@ exports.addFile = async (req, res) => {
     const s3Duration = new Date() - s3StartTime;
     statsd.timing('s3.upload.time', s3Duration);
     
-    logger.info(`File uploaded to S3 ${s3Duration}`);
+    logger.info({message:`File uploaded to S3 ${s3Duration}`});
 
     const dbStartTime = new Date();   // Start timer for database operation
     const newFile = await File.create({
@@ -49,7 +49,7 @@ exports.addFile = async (req, res) => {
     const dbDuration = new Date() - dbStartTime;
     statsd.timing('db.create.time', dbDuration);
 
-    logger.info(`File record created in database ${dbDuration}`);
+    logger.info({message:`File record created in database ${dbDuration}`});
 
     res.status(201).json({
       file_name: newFile.file_name,
@@ -63,7 +63,7 @@ exports.addFile = async (req, res) => {
 
     logger.info(`File added successfully`);
   } catch (error) {
-    logger.error(`Error adding file`,error);
+    logger.error({message:`Error adding file`,error});
     statsd.increment('api.post.file.error');
     res.status(400).json({ message: 'Bad Request' });
   }
@@ -75,18 +75,18 @@ exports.getFile = async (req, res) => {
   try {
     const fileId = req.params.id;
 
-    logger.info(`Get file request received ${fileId}`);
+    logger.info({message:`Get file request received ${fileId}`});
 
     const dbStartTime = new Date()
     const file = await File.findOne({ where: { id: fileId } });
     const dbDuration = new Date() - dbStartTime;
     statsd.timing('db.findOne.time', dbDuration);
 
-    logger.info(`Database query executed ${dbDuration}`);
+    logger.info({message:`Database query executed ${dbDuration}`});
 
 
     if (!file) {
-      logger.warn(`File not found`);
+      logger.warn({message:`File not found`});
       return res.status(404).json({ message: 'File not found' });
     }
 
@@ -99,9 +99,9 @@ exports.getFile = async (req, res) => {
 
     const apiDuration = new Date() - apiStartTime;
     statsd.timing('api.get.file.time', apiDuration);
-    logger.info(`File retrieved successfully ${apiDuration}`);
+    logger.info({message:`File retrieved successfully ${apiDuration}`});
   } catch (error) {
-    logger.error(`Error fetching file`);
+    logger.error({message:`Error fetching file`});
     statsd.increment('api.get.file.error',error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
@@ -112,16 +112,16 @@ exports.deleteFile = async (req, res) => {
   statsd.increment('api.delete.file');
   try {
     const fileId = req.params.id;
-    logger.info(`Delete file request received ${fileId}`);
+    logger.info({message:`Delete file request received ${fileId}`});
     const dbFindStartTime = new Date();
     const file = await File.findOne({ where: { id: fileId } });
     const dbFindDuration = new Date() - dbFindStartTime;
     statsd.timing('db.findOne.time', dbFindDuration);
 
-    logger.info(`Database query executed`);
+    logger.info({message:'Database query executed'});
 
     if (!file) {
-      logger.warn(`File not found for deletion`);
+      logger.warn({message:`File not found for deletion`});
       return res.status(404).json({ message: 'File not found' });
     }
 
@@ -146,16 +146,16 @@ exports.deleteFile = async (req, res) => {
       const dbDeleteDuration = new Date() - dbDeleteStartTime;
       statsd.timing('db.destroy.time', dbDeleteDuration);
 
-      logger.info(`File record deleted from database`);
+      logger.info({message:`File record deleted from database`});
 
       const apiDuration = new Date() - apiStartTime;
       statsd.timing('api.delete.file.time', apiDuration);
       
-      logger.info(`File deleted successfully`);
+      logger.info({message:`File deleted successfully`});
       
       return res.status(204).send();
     } catch (s3Error) {
-      logger.error(`S3 deletion error`);
+      logger.error({message:`S3 deletion error`});
       statsd.increment('s3.deleteObject.error');
       
       
@@ -164,18 +164,18 @@ exports.deleteFile = async (req, res) => {
         return res.status(401).json({ message: 'Unauthorized' });
       }
       
-      logger.error(`Internal Server Error on DELETE request`);
+      logger.error({message:`Internal Server Error on DELETE request`});
       return res.status(500).json({ message: 'Internal Server Error' });
     }
   } catch (error) {
-    logger.error(`Error deleting file`);
+    logger.error({message:`Error deleting file`});
     statsd.increment('api.delete.file.error');
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
 exports.badRequest = (req, res) => {
-  statsd.increment('api.badRequest');
+  statsd.increment({message:'api.badRequest'});
   logger.warn(`Bad request`);
   res.status(400).json({ message: 'Bad Request' });
 };
