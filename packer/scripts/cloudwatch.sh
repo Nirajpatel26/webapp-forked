@@ -27,18 +27,18 @@ cat <<'CWAGENT_JSON' > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-ag
           }
         ]
       }
-    }
+    },
+    "log_stream_name": "cloudwatch_log_stream"
   },
-  "metrics": {
-    "namespace": "webapp",
-    "metrics_collected": {
-      "statsd": {
-        "service_address": ":8125",
-        "metrics_collection_interval": 15,
-        "metrics_aggregation_interval": 300
-      }
+  "metrics":{
+    "metrics_collected":{
+       "statsd":{
+          "service_address":":8125",
+          "metrics_collection_interval":5,
+          "metrics_aggregation_interval":10
+       }
     }
-  }
+ }
 }
 CWAGENT_JSON
 
