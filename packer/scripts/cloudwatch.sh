@@ -11,35 +11,34 @@ sudo mkdir -p /opt/aws/amazon-cloudwatch-agent/etc/
 cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
 {
   "agent": {
-      "metrics_collection_interval": 10,
-      "logfile": "/var/logs/amazon-cloudwatch-agent.log"
+    "metrics_collection_interval": 10,
+    "logfile": "/var/log/amazon-cloudwatch-agent.log"
   },
   "logs": {
-      "logs_collected": {
-          "files": {
-              "collect_list": [
-                  {
-                      "file_path": "/var/log/webapp.log",
-                      "log_group_name": "/csye6225/webapp",
-                      "log_stream_name": "webappLogStream",
-                      "timestamp_format": "%Y-%m-%d %H:%M:%S",
-                      "log_format":"json"
-                  }
-              ]
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/var/log/webapp.log",
+            "log_group_name": "/csye6225/webapp",
+            "log_stream_name": "webappLogStream",
+            "timestamp_format": "%Y-%m-%d %H:%M:%S",
+            "log_format": "json"
           }
-      },
-      "log_stream_name": "cloudwatch_log_stream"
-  },
-  "metrics":{
-  "namespace": "webapp",
-    "metrics_collected":{
-       "statsd":{
-          "service_address":":8125",
-          "metrics_collection_interval":15,
-          "metrics_aggregation_interval":300
-       }
+        ]
+      }
     }
- }
+  },
+  "metrics": {
+    "namespace": "webapp",
+    "metrics_collected": {
+      "statsd": {
+        "service_address": ":8125",
+        "metrics_collection_interval": 15,
+        "metrics_aggregation_interval": 300
+      }
+    }
+  }
 }
 EOF
 
