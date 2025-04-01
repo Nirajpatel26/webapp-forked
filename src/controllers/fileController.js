@@ -155,7 +155,7 @@ exports.deleteFile = async (req, res) => {
       
       return res.status(204).send();
     } catch (s3Error) {
-      logger.error('S3 deletion error');
+      logger.error('S3 deletion error',s3Error);
       statsd.increment('s3.deleteObject.error');
       
       
@@ -168,7 +168,7 @@ exports.deleteFile = async (req, res) => {
       return res.status(500).json({ message: 'Internal Server Error' });
     }
   } catch (error) {
-    logger.error('Error deleting file');
+    logger.error('Error deleting file',error);
     statsd.increment('api.delete.file.error');
     res.status(500).json({ message: 'Internal Server Error' });
   }

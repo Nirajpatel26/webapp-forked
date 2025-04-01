@@ -23,7 +23,7 @@ const connectToDb = async () => {
         logger.info(`Database connected successfully`);
     } catch (error) {
         statsd.increment('db.connection.error');
-        logger.error(`Database connection error`);
+        logger.error('Database connection error', error);
     }
 };
 

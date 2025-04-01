@@ -24,7 +24,7 @@ function singleFileMiddleware(req, res, next) {
   upload.single("profilePic")(req, res, (err) => {
     if (err) {
       if (err.code === "LIMIT_UNEXPECTED_FILE") {
-        logger.error(`File upload failed: Unexpected field or multiple files detected`); 
+        logger.error(`File upload failed: Unexpected field or multiple files detected`,error); 
         statsd.increment('middleware.singleFile.unexpected_file');
         return res.status(400).json({ message: "Unexpected file field" });
       }
