@@ -23,7 +23,7 @@ cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agen
           {
             "file_path": "/var/log/webapp.log",
             "log_group_name": "/csye6225/webapp",
-            "log_stream_name": "webappLogStream",
+            "log_stream_name": "webappLogStream_{instance_id}",
             "timestamp_format": "%Y-%m-%d %H:%M:%S"
           }
         ]
