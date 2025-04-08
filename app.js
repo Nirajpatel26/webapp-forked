@@ -31,8 +31,9 @@ const connectToDb = async () => {
 connectToDb();
 
 app.all("/healthz", setHeaders ,async (req, res) => {
+    const startTime = new Date();
     try {
-        const startTime = new Date();
+
         statsd.increment('api.healthz');
 
         if (req.method !== 'GET') {
