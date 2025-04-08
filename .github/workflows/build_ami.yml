@@ -110,6 +110,60 @@ jobs:
             -var "server_port=${{ secrets.SERVER_PORT }}" \
             -var "db_host=${{ secrets.DB_HOST }}" \
             webapp.pkr.hcl
+          AMI_ID=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2)
+          echo "ami=$AMI_ID" >> "$GITHUB_OUTPUT"
+      
+  deploy:
+    name: Deploy
+    needs: packer_build
+    runs-on: ubuntu-latest 
+    env:
+      AWS_REGION: ${{secrets.AWS_REGION}}
+      aws-demo-access-key-id: ${{ secrets.DEMO_ACCESS_KEY}}
+      aws-demo-secret-access-key: ${{ secrets.DEMO_SECRET_KEY }}
+      AWS_ENV: ${{ secrets.AWS_ENV }} 
+    steps:
+      - name: Debug AMI ID
+        run: |
+          echo "AMI ID: ${{ needs.packer_build.outputs.ami_id }}"
+
+      - name: Configure demo AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEMO_GITHUB_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.DEMO_GITHUB_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }} 
+
+      
+        
+      - name: Update Launch Template
+        run: |
+          aws ec2 create-launch-template-version \
+            --launch-template-data '{"ImageId":"${{ needs.packer_build.outputs.ami_id }}"}' \
+            --source-version '$Latest' \
+            --launch-template-id ${{ secrets.LAUNCH_TEMPLATE_ID }}
+
+      - name: Start Instance Refresh
+        id: start_refresh
+        run: |
+          REFRESH_ID=$(aws autoscaling start-instance-refresh --auto-scaling-group-name ${{ secrets.ASG_NAME }} --query 'InstanceRefreshId' --output text)
+          echo "refresh_id=$REFRESH_ID" >> $GITHUB_OUTPUT
+
+      - name: Wait for Instance Refresh
+        run: |
+          while true; do
+            STATUS=$(aws autoscaling describe-instance-refreshes --auto-scaling-group-name ${{ secrets.ASG_NAME }} --instance-refresh-ids ${{ steps.start_refresh.outputs.refresh_id }} --query 'InstanceRefreshes[0].Status' --output text)
+            if [ "$STATUS" = "Successful" ]; then
+              echo "Instance refresh completed successfully"
+              exit 0
+            elif [ "$STATUS" = "Failed" ]; then
+              echo "Instance refresh failed"
+              exit 1
+            else
+              echo "Instance refresh in progress. Current status: $STATUS"
+              sleep 30
+            fi
+          done
 
       # - name: Authenticate to Google Cloud
       #   uses: google-github-actions/auth@v1
