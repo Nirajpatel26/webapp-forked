@@ -1,14 +1,18 @@
 name: Packer Build CI
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches: ["main"]
+  # push:
+  #   branches: ["main"]
   #pull_request:
     #branches: ["main"]
 
 jobs:
   build:
     name: packer-build
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     services:
@@ -114,27 +118,22 @@ jobs:
           echo "ami=$AMI_ID" >> "$GITHUB_OUTPUT"
       
   deploy:
-    name: Deploy
-    needs: packer_build
+    name: deploy
+    needs: build
     runs-on: ubuntu-latest 
     env:
-      AWS_REGION: ${{secrets.AWS_REGION}}
-      aws-demo-access-key-id: ${{ secrets.DEMO_ACCESS_KEY}}
-      aws-demo-secret-access-key: ${{ secrets.DEMO_SECRET_KEY }}
-      AWS_ENV: ${{ secrets.AWS_ENV }} 
+      AWS_REGION: ${{ secrets.AWS_REGION }}
     steps:
       - name: Debug AMI ID
         run: |
           echo "AMI ID: ${{ needs.packer_build.outputs.ami_id }}"
 
-      - name: Configure demo AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Configure DEMO AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id: ${{ secrets.DEMO_GITHUB_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.DEMO_GITHUB_SECRET_KEY }}
           aws-region: ${{ secrets.AWS_REGION }} 
-
-      
         
       - name: Update Launch Template
         run: |
