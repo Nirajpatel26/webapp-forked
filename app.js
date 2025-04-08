@@ -31,9 +31,9 @@ const connectToDb = async () => {
 connectToDb();
 
 app.all("/healthz", setHeaders ,async (req, res) => {
-    const startTime = new Date();
-    statsd.increment('api.healthz');
     try {
+        const startTime = new Date();
+        statsd.increment('api.healthz');
 
         if (req.method !== 'GET') {
             
@@ -66,7 +66,7 @@ app.all("/healthz", setHeaders ,async (req, res) => {
     
     } catch (error) {
         
-        logger.error(`Health check error`);
+        logger.error('Health check error',error);
         statsd.increment('api.healthz.error');
         res.status(503).send();
     }finally {
@@ -74,12 +74,6 @@ app.all("/healthz", setHeaders ,async (req, res) => {
         statsd.timing('api.healthz.time', duration);
     }
 });
-
-app.all('/', setHeaders ,async (req, res) => {
-    statsd.increment('api.root');
-    logger.error(`Health check unsuccessful`);
-    res.status(405).send();
-})
 
 app.use(setHeaders);
 
