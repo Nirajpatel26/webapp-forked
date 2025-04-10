@@ -15,7 +15,7 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
-      ami_id: ${{ steps.build_ami.outputs.ami }}
+      ami_id: ${{ steps.packer_run.outputs.ami }}
 
     services:
       mysql:
@@ -116,6 +116,7 @@ jobs:
             -var "db_database=${{ secrets.DB_DATABASE }}" \
             -var "server_port=${{ secrets.SERVER_PORT }}" \
             -var "db_host=${{ secrets.DB_HOST }}" \
+            -manifest-file=manifest.json \
             webapp.pkr.hcl
           AMI_ID=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2)
           echo "ami=$AMI_ID" >> "$GITHUB_OUTPUT"
@@ -130,7 +131,7 @@ jobs:
     steps:
       - name: Debug AMI ID
         run: |
-          echo "AMI ID: ${{needs.packer_build.outputs.ami_id}}"
+          echo "AMI ID: ${{ needs.build.outputs.ami_id }}"
 
       - name: Configure DEMO AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -142,7 +143,7 @@ jobs:
       - name: Update Launch Template
         run: |
           aws ec2 create-launch-template-version \
-            --launch-template-data '{"ImageId":"${{ needs.packer_build.outputs.ami_id }}"}' \
+            --launch-template-data '{"ImageId":"${{ needs.build.outputs.ami_id }}"}' \
             --source-version '$Latest' \
             --launch-template-name ${{ secrets.LAUNCH_TEMPLATE_NAME }}
 
