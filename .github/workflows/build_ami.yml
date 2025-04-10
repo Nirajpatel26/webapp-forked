@@ -92,6 +92,7 @@ jobs:
 
 
       - name: Run Packer
+        id: packer_run
         run: |
           # Install Packer non-interactively
           wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
@@ -118,6 +119,7 @@ jobs:
             webapp.pkr.hcl
           AMI_ID=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2)
           echo "ami=$AMI_ID" >> "$GITHUB_OUTPUT"
+          echo "Generated AMI ID: $AMI_ID"
       
   deploy:
     name: deploy
@@ -128,7 +130,7 @@ jobs:
     steps:
       - name: Debug AMI ID
         run: |
-          echo "AMI ID: ${{ needs.packer_build.outputs.ami_id }}"
+          echo "AMI ID: ${{ needs.build.outputs.ami_id }}"
 
       - name: Configure DEMO AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -140,9 +142,9 @@ jobs:
       - name: Update Launch Template
         run: |
           aws ec2 create-launch-template-version \
-            --launch-template-data '{"ImageId":"${{ needs.packer_build.outputs.ami_id }}"}' \
+            --launch-template-data '{"ImageId":"${{ needs.build.outputs.ami_id }}"}' \
             --source-version '$Latest' \
-            --launch-template-id ${{ secrets.LAUNCH_TEMPLATE_ID }}
+            --launch-template-name ${{ secrets.LAUNCH_TEMPLATE_NAME }}
 
       - name: Start Instance Refresh
         id: start_refresh
