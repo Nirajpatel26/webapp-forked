@@ -219,27 +219,79 @@ jobs:
                   AWS_SECRET_ACCESS_KEY: ${{ secrets.DEMO_GITHUB_SECRET_KEY }}
                   AWS_REGION: ${{ secrets.AWS_REGION }}
 
-      - name: Start Instance Refresh
+
+      - name: Start instance refresh
         id: start_refresh
         run: |
-          REFRESH_ID=$(aws autoscaling start-instance-refresh --auto-scaling-group-name ${{ secrets.ASG_NAME }} --query 'InstanceRefreshId' --output text)
-          echo "refresh_id=$REFRESH_ID" >> $GITHUB_OUTPUT
-
-      - name: Wait for Instance Refresh
+                  # Get ASG Name
+                  ASG_NAME=$(aws autoscaling describe-auto-scaling-groups \
+                    --query "AutoScalingGroups[?AutoScalingGroupName=='webapp-asg'].AutoScalingGroupName" \
+                    --output text)
+ 
+                  if [ -z "$ASG_NAME" ]; then
+                    echo "Error: Could not find Auto Scaling Group"
+                    echo "Available ASGs:"
+                    aws autoscaling describe-auto-scaling-groups --query 'AutoScalingGroups[].AutoScalingGroupName' --output table
+                    exit 1
+                  fi
+ 
+                  echo "Found ASG: $ASG_NAME"
+ 
+                  # Start the refresh
+                  REFRESH_ID=$(aws autoscaling start-instance-refresh \
+                    --auto-scaling-group-name "$ASG_NAME" \
+                    --preferences '{"MinHealthyPercentage": 90, "InstanceWarmup": 300}' \
+                    --query "InstanceRefreshId" --output text)
+ 
+                  echo "Started instance refresh with ID: $REFRESH_ID for ASG: $ASG_NAME"
+                  echo "REFRESH_ID=$REFRESH_ID" >> $GITHUB_ENV
+                  echo "ASG_NAME=$ASG_NAME" >> $GITHUB_ENV
+        env:
+                  AWS_ACCESS_KEY_ID: ${{ secrets.DEMO_GITHUB_ACCESS_KEY }}
+                  AWS_SECRET_ACCESS_KEY: ${{ secrets.DEMO_GITHUB_SECRET_KEY }}
+                  AWS_REGION: ${{ secrets.AWS_REGION }}
+ 
+            # Wait for instance refresh to complete
+      - name: Wait for instance refresh to complete
         run: |
-          while true; do
-            STATUS=$(aws autoscaling describe-instance-refreshes --auto-scaling-group-name ${{ secrets.ASG_NAME }} --instance-refresh-ids ${{ steps.start_refresh.outputs.refresh_id }} --query 'InstanceRefreshes[0].Status' --output text)
-            if [ "$STATUS" = "Successful" ]; then
-              echo "Instance refresh completed successfully"
-              exit 0
-            elif [ "$STATUS" = "Failed" ]; then
-              echo "Instance refresh failed"
-              exit 1
-            else
-              echo "Instance refresh in progress. Current status: $STATUS"
-              sleep 30
-            fi
-          done
+                  echo "Waiting for instance refresh to complete (estimated time: 15-30 minutes)..."
+                  start_time=$(date +%s)
+ 
+                  while true; do
+                    STATUS=$(aws autoscaling describe-instance-refreshes \
+                      --auto-scaling-group-name "${{ env.ASG_NAME }}" \
+                      --instance-refresh-ids "${{ env.REFRESH_ID }}" \
+                      --query "InstanceRefreshes[0].[Status,StatusReason]" \
+                      --output text)
+                    
+                    status_type=$(echo "$STATUS" | cut -f1)
+                    status_reason=$(echo "$STATUS" | cut -f2)
+                    current_time=$(date +%s)
+                    elapsed_time=$((current_time - start_time))
+                    elapsed_minutes=$((elapsed_time / 60))
+                    
+                    echo "Current status: $status_type (Running for ${elapsed_minutes} minutes)"
+                    if [ ! -z "$status_reason" ]; then
+                      echo "Status reason: $status_reason"
+                    fi
+                    
+                    if [ "$status_type" == "Successful" ]; then
+                      echo "Instance refresh completed successfully after ${elapsed_minutes} minutes!"
+                      exit 0
+                    elif [ "$status_type" == "Failed" ] || [ "$status_type" == "Cancelled" ]; then
+                      echo "Instance refresh failed or was cancelled after ${elapsed_minutes} minutes."
+                      exit 1
+                    fi
+                    
+                    echo "Still in progress. Waiting 30 seconds before checking again..."
+                    sleep 30
+                  done
+        env:
+                  AWS_ACCESS_KEY_ID: ${{ secrets.DEMO_GITHUB_ACCESS_KEY }}
+                  AWS_SECRET_ACCESS_KEY: ${{ secrets.DEMO_GITHUB_SECRET_KEY }}
+                  AWS_REGION: ${{ secrets.AWS_REGION }}
+ 
+ 
 
       # - name: Authenticate to Google Cloud
       #   uses: google-github-actions/auth@v1
