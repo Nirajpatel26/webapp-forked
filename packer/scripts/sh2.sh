@@ -8,6 +8,7 @@ echo "-------Installing Required Packages-------"
 # Install MySQL Server with proper handling for dependencies
 sudo apt-get install -y mysql-server-8.0 || sudo apt-get install -y mysql-server
 sudo apt-get install -y unzip
+sudo snap install aws-cli --classic
 
 # Verify MySQL installation
 if ! command -v mysql &> /dev/null; then
