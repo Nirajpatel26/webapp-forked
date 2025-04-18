@@ -12,6 +12,8 @@ const app = express();
 app.use(express.json());
 
 
+
+
 // Connect to the database
 const connectToDb = async () => {
     const startTime = new Date();
